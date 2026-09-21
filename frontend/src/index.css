@@ -85,6 +85,22 @@ label.block:not([data-slot='label']) {
 	@apply text-p-sm-medium text-ink-gray-7;
 }
 
+/* Caladrius-inspired accent for primary buttons: swap frappe-ui's default
+   near-black gray-solid button (bg-surface-gray-10/9/8 + white text-ink-base)
+   for a warm salmon pairing. Selector requires both utility classes Button.vue
+   pairs for theme="gray" variant="solid", so other consumers of the shared
+   --surface-gray-* tokens (dark-mode fills, etc.) are untouched. */
+.bg-surface-gray-10.text-ink-base {
+	background-color: #f8c4b7;
+	color: #3c210e;
+}
+.bg-surface-gray-10.text-ink-base:hover {
+	background-color: #f5b3a3;
+}
+.bg-surface-gray-10.text-ink-base:active {
+	background-color: #f0a08d;
+}
+
 /* Switch rows follow CRM's settings row: a medium, darker label over the
    text-p-sm/ink-gray-5 description frappe-ui already renders. Keyed off the
    switch control rather than a wrapper class so a bare frappe-ui Switch is
