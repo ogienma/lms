@@ -23,12 +23,12 @@ jobs:
           repository: frappe/frappe_docker
           ref: main
 
-      - name: Build apps.json (payments + this exact commit of lms)
+      - name: Build apps.json (payments + lms)
         run: |
           cat > apps.json <<EOF
           [
             {"url": "https://github.com/frappe/payments", "branch": "develop"},
-            {"url": "https://github.com/ogienma/lms", "branch": "${{ github.sha }}"}
+            {"url": "https://github.com/ogienma/lms", "branch": "${{ github.ref_name }}"}
           ]
           EOF
 
