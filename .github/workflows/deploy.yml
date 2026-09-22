@@ -1,4 +1,4 @@
-name: Build and deploy
+name: Build and push
 
 on:
   push:
@@ -12,8 +12,6 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.meta.outputs.sha }}
     steps:
       - name: Set metadata
         id: meta
@@ -33,7 +31,6 @@ jobs:
             {"url": "https://github.com/ogienma/lms", "branch": "${{ github.sha }}"}
           ]
           EOF
-          echo "APPS_JSON_BASE64=$(base64 -w 0 apps.json)" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -52,22 +49,17 @@ jobs:
           file: images/custom/Containerfile
           platforms: linux/amd64
           push: true
+          secret-files: |
+            apps_json=apps.json
           build-args: |
             FRAPPE_PATH=https://github.com/frappe/frappe
             FRAPPE_BRANCH=version-16
-            APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }}
           tags: |
             ghcr.io/ogienma/lms:production
             ghcr.io/ogienma/lms:${{ steps.meta.outputs.sha }}
 
-  deploy:
-    needs: build-and-push
-    runs-on: self-hosted
-    environment: production
-    steps:
-      - name: Pull new image and restart
+      - name: Verify apps actually made it into the image
         run: |
-          cd /opt/caladrius-academy/compose
-          sed -i "s/^CUSTOM_TAG=.*/CUSTOM_TAG=production/" .env
-          docker compose pull
-          docker compose up -d
+          docker run --rm ghcr.io/ogienma/lms:${{ steps.meta.outputs.sha }} cat sites/apps.txt
+          docker run --rm ghcr.io/ogienma/lms:${{ steps.meta.outputs.sha }} cat sites/apps.txt | grep -qx payments
+          docker run --rm ghcr.io/ogienma/lms:${{ steps.meta.outputs.sha }} cat sites/apps.txt | grep -qx lms
