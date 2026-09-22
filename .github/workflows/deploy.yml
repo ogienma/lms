@@ -1,0 +1,73 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [production]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.sha }}
+    steps:
+      - name: Set metadata
+        id: meta
+        run: echo "sha=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout frappe_docker (build tooling)
+        uses: actions/checkout@v4
+        with:
+          repository: frappe/frappe_docker
+          ref: main
+
+      - name: Build apps.json (payments + this exact commit of lms)
+        run: |
+          cat > apps.json <<EOF
+          [
+            {"url": "https://github.com/frappe/payments", "branch": "develop"},
+            {"url": "https://github.com/ogienma/lms", "branch": "${{ github.sha }}"}
+          ]
+          EOF
+          echo "APPS_JSON_BASE64=$(base64 -w 0 apps.json)" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: images/custom/Containerfile
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            FRAPPE_PATH=https://github.com/frappe/frappe
+            FRAPPE_BRANCH=version-16
+            APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }}
+          tags: |
+            ghcr.io/ogienma/lms:production
+            ghcr.io/ogienma/lms:${{ steps.meta.outputs.sha }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: self-hosted
+    environment: production
+    steps:
+      - name: Pull new image and restart
+        run: |
+          cd /opt/caladrius-academy/compose
+          sed -i "s/^CUSTOM_TAG=.*/CUSTOM_TAG=production/" .env
+          docker compose pull
+          docker compose up -d
