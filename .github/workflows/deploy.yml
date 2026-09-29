@@ -9,14 +9,49 @@ permissions:
   contents: read
   packages: write
 
+# One build per branch at a time; a newer push cancels an older in-flight run.
+# Correctness doesn't depend on this (promote re-checks the branch head), it just saves runner time.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   IMAGE: ghcr.io/ogienma/lms
   # Pinned on purpose: framework upgrades get their own PR instead of riding along with other changes.
   FRAPPE_REF: v16.34.0
+  # Build tooling pinned to a commit so rebuilding the same lms commit uses the same Containerfile.
+  FRAPPE_DOCKER_REF: 654c067add9d39191ac174d75525bc537c7602ce
+  # bench can only clone payments by branch (and strips .git), so it can't be pinned to a commit.
+  # The commit that actually went in is recorded as an image label instead.
+  PAYMENTS_BRANCH: develop
 
 jobs:
+  # Resolve moving refs once so both architectures build from the same inputs.
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      payments_sha: ${{ steps.refs.outputs.payments_sha }}
+    steps:
+      # bench clones lms by branch name, not by commit, so the image only contains github.sha
+      # if nothing was pushed since this run was triggered.
+      - name: Check the branch head is still this commit
+        run: |
+          head=$(git ls-remote "https://github.com/$GITHUB_REPOSITORY" "refs/heads/$GITHUB_REF_NAME" | cut -f1)
+          if [ "$head" != "$GITHUB_SHA" ]; then
+            echo "::error::$GITHUB_REF_NAME is at $head, not $GITHUB_SHA; a newer push supersedes this run."
+            exit 1
+          fi
+
+      - name: Resolve payments commit
+        id: refs
+        run: |
+          sha=$(git ls-remote https://github.com/frappe/payments "refs/heads/$PAYMENTS_BRANCH" | cut -f1)
+          test -n "$sha"
+          echo "payments_sha=$sha" >> "$GITHUB_OUTPUT"
+
   # Each architecture builds natively on its own runner and pushes by digest (no tag yet).
   build:
+    needs: resolve
     strategy:
       fail-fast: true
       matrix:
@@ -31,13 +66,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: frappe/frappe_docker
-          ref: main
+          ref: ${{ env.FRAPPE_DOCKER_REF }}
 
       - name: Build apps.json (payments + lms)
         run: |
           cat > apps.json <<EOF
           [
-            {"url": "https://github.com/frappe/payments", "branch": "develop"},
+            {"url": "https://github.com/frappe/payments", "branch": "${{ env.PAYMENTS_BRANCH }}"},
             {"url": "https://github.com/ogienma/lms", "branch": "${{ github.ref_name }}"}
           ]
           EOF
@@ -64,9 +99,15 @@ jobs:
           build-args: |
             FRAPPE_PATH=https://github.com/frappe/frappe
             FRAPPE_BRANCH=${{ env.FRAPPE_REF }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            io.github.ogienma.lms.frappe-ref=${{ env.FRAPPE_REF }}
+            io.github.ogienma.lms.payments-ref=${{ needs.resolve.outputs.payments_sha }}
+            io.github.ogienma.lms.frappe-docker-ref=${{ env.FRAPPE_DOCKER_REF }}
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
-      - name: Verify apps and PDF tooling on this architecture
+      - name: Verify apps, PDF tooling and labels on this architecture
         env:
           REF: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
         run: |
@@ -76,6 +117,8 @@ jobs:
           docker run --rm "$REF" cat sites/apps.txt | grep -qx lms
           docker run --rm "$REF" test -x /usr/bin/chromium-headless-shell
           docker run --rm "$REF" wkhtmltopdf --version
+          rev=$(docker image inspect "$REF" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')
+          test "$rev" = "$GITHUB_SHA"
 
       - name: Export digest
         run: |
@@ -91,10 +134,13 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  # Stitch the per-arch digests into one multi-arch manifest and tag it.
+  # Stitch the per-arch digests into one multi-arch manifest under the commit tags only.
+  # :production is not touched here.
   merge:
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.digest.outputs.digest }}
     steps:
       - name: Download digests
         uses: actions/download-artifact@v4
@@ -117,14 +163,65 @@ jobs:
         working-directory: ${{ runner.temp }}/digests
         run: |
           docker buildx imagetools create \
-            -t "$IMAGE:production" \
+            --annotation "index:org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" \
+            --annotation "index:org.opencontainers.image.revision=$GITHUB_SHA" \
+            --annotation "index:io.github.ogienma.lms.frappe-ref=$FRAPPE_REF" \
+            -t "$IMAGE:$GITHUB_SHA" \
             -t "$IMAGE:${GITHUB_SHA::12}" \
             $(printf "$IMAGE@sha256:%s " *)
 
       - name: Verify both architectures are in the manifest
         run: |
-          docker buildx imagetools inspect "$IMAGE:${GITHUB_SHA::12}"
-          archs=$(docker buildx imagetools inspect "$IMAGE:${GITHUB_SHA::12}" --format '{{json .Manifest}}' \
+          docker buildx imagetools inspect "$IMAGE:$GITHUB_SHA"
+          archs=$(docker buildx imagetools inspect "$IMAGE:$GITHUB_SHA" --format '{{json .Manifest}}' \
             | jq -r '.manifests[].platform.architecture')
           echo "$archs" | grep -qx amd64
           echo "$archs" | grep -qx arm64
+
+      - name: Record manifest digest
+        id: digest
+        run: |
+          digest=$(docker buildx imagetools inspect "$IMAGE:$GITHUB_SHA" --format '{{json .Manifest}}' | jq -r .digest)
+          echo "$digest" | grep -qE '^sha256:[0-9a-f]{64}$'
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+  # Move :production to the verified manifest. The VM follows :production, so this is the deploy.
+  promote:
+    needs: merge
+    if: github.ref == 'refs/heads/production'
+    runs-on: ubuntu-latest
+    steps:
+      # A newer push may have landed during the build. Its own run will promote; this one must not
+      # overwrite it with an older image.
+      - name: Check the branch head is still this commit
+        id: head
+        run: |
+          head=$(git ls-remote "https://github.com/$GITHUB_REPOSITORY" refs/heads/production | cut -f1)
+          if [ "$head" = "$GITHUB_SHA" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::production moved to $head during this build; skipping promotion of $GITHUB_SHA."
+            echo "current=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Docker Buildx
+        if: steps.head.outputs.current == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: steps.head.outputs.current == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag :production
+        if: steps.head.outputs.current == 'true'
+        env:
+          DIGEST: ${{ needs.merge.outputs.digest }}
+        run: |
+          docker buildx imagetools create -t "$IMAGE:production" "$IMAGE@$DIGEST"
+          moved=$(docker buildx imagetools inspect "$IMAGE:production" --format '{{json .Manifest}}' | jq -r .digest)
+          echo ":production -> $moved"
+          test "$moved" = "$DIGEST"
