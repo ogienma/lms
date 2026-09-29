@@ -160,19 +160,6 @@ const gradientColor = computed(() => {
 })
 </script>
 <style>
-.course-card-pills {
-	background: #ffffff;
-	margin-left: 0;
-	margin-right: 0.5rem;
-	padding: 3.5px 8px;
-	font-size: 11px;
-	text-align: center;
-	letter-spacing: 0.011em;
-	text-transform: uppercase;
-	font-weight: 600;
-	width: fit-content;
-}
-
 .avatar-group {
 	display: inline-flex;
 	align-items: center;
