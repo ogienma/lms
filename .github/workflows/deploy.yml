@@ -33,12 +33,17 @@ jobs:
           repository: frappe/frappe_docker
           ref: main
 
+      # This repo is private, so bench must clone it with the job's short-lived token.
+      # apps.json is passed as a build secret (never written to a layer), the image
+      # strips .git dirs, and the token expires when the job ends.
       - name: Build apps.json (payments + lms)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat > apps.json <<EOF
           [
             {"url": "https://github.com/frappe/payments", "branch": "develop"},
-            {"url": "https://github.com/ogienma/lms", "branch": "${{ github.ref_name }}"}
+            {"url": "https://x-access-token:${GH_TOKEN}@github.com/ogienma/lms", "branch": "${{ github.ref_name }}"}
           ]
           EOF
 
