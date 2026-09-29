@@ -399,7 +399,7 @@
 			<div v-for="(question, qtidx) in questions" :key="question.name">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
-					class="border rounded-lg p-5"
+					class="border rounded-lg p-5 font-reading"
 				>
 					<div class="flex flex-wrap items-baseline justify-between gap-x-4">
 						<div class="min-w-0 text-sm text-ink-gray-5">
