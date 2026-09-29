@@ -476,6 +476,7 @@ const props = defineProps({
 })
 
 let collapsedByLesson = false
+let sidebarWasCollapsed = false
 const isCourseAdmin = () =>
 	Boolean(user.data?.is_moderator || user.data?.is_instructor)
 
@@ -484,6 +485,7 @@ onMounted(() => {
 	// Keep the app sidebar open for admins/instructors so they can navigate
 	// while reviewing; only collapse it for students to maximise reading space.
 	if (!isCourseAdmin()) {
+		sidebarWasCollapsed = sidebarStore.isSidebarCollapsed
 		sidebarStore.isSidebarCollapsed = true
 		collapsedByLesson = true
 	}
@@ -519,7 +521,7 @@ onBeforeUnmount(() => {
 	// Without this the handler outlives the page, and every revisit adds another
 	// one — so a single progress event fires one outline reload per past visit.
 	socket.off('update_lesson_progress', onLessonProgress)
-	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = false
+	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = sidebarWasCollapsed
 	trackVideoWatchDuration()
 })
 
