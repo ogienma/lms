@@ -1,0 +1,156 @@
+/*
+ * Styles for the Jinja CourseCard widget (lms/lms/widgets/CourseCard.html) and
+ * the web templates that lay it out in a grid (course_cards,
+ * recently_published_courses, courses_enrolled). Restored from the legacy
+ * style.css bundle, scoped to the card, and using theme variables instead of
+ * hardcoded colours so it follows the website theme.
+ */
+
+.cards-parent {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 2rem;
+	align-items: center;
+}
+
+@media (max-width: 767px) {
+	.cards-parent {
+		gap: 1rem;
+	}
+}
+
+@media (max-width: 375px) {
+	.cards-parent {
+		grid-template-columns: 100%;
+	}
+}
+
+.course-card {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	height: 100%;
+	min-height: 350px;
+	overflow: hidden;
+	background: var(--card-bg, #fff);
+	border: 1px solid var(--border-color, var(--gray-300));
+	border-radius: var(--border-radius-md, 8px);
+	box-shadow: var(--shadow-inset, none);
+}
+
+.course-card .course-image {
+	height: 168px;
+	width: 100%;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.course-card .default-image {
+	display: flex;
+	flex-direction: column;
+	background-color: var(--avatar-frame-bg, var(--gray-100));
+	color: var(--avatar-frame-color, var(--gray-700));
+}
+
+.course-card .default-image-text {
+	display: flex;
+	flex: 1;
+	align-self: center;
+	font-size: 7rem;
+	font-weight: bold;
+}
+
+.course-card .course-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	position: relative;
+	top: 1rem;
+	left: 1rem;
+	width: fit-content;
+	max-width: calc(100% - 2rem);
+}
+
+.course-card .course-card-pills {
+	padding: 3.5px 8px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.011em;
+	text-transform: uppercase;
+	text-align: center;
+	background: var(--card-bg, #fff);
+	color: var(--text-color, var(--gray-900));
+	border: 1px solid var(--border-color, var(--gray-300));
+	border-radius: var(--border-radius, 6px);
+}
+
+.course-card .course-card-content {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	padding: 1rem;
+	color: var(--text-color);
+}
+
+.course-card .course-card-meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.5rem;
+	font-size: var(--text-base);
+}
+
+.course-card .vertically-center {
+	display: flex;
+	align-items: center;
+}
+
+.course-card .course-card-title {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--heading-color, var(--text-color));
+}
+
+.course-card .short-introduction {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	margin-bottom: 1.25rem;
+}
+
+.course-card .progress-bar {
+	background-color: var(--primary-color, var(--primary));
+}
+
+.course-card .progress-percent {
+	margin: 0.5rem 0;
+	font-size: var(--text-sm);
+}
+
+.course-card .course-card-footer {
+	display: flex;
+	justify-content: space-between;
+	margin-top: auto;
+}
+
+.course-card .course-card-instructors {
+	display: flex;
+	align-items: center;
+}
+
+.course-card .course-instructor {
+	margin-left: 0.5rem;
+	font-size: var(--text-base);
+}
+
+.course-card .course-price {
+	font-weight: 500;
+}
+
+.course-card .button-links,
+.course-card .button-links:hover {
+	color: inherit;
+	text-decoration: none;
+}
