@@ -104,3 +104,13 @@ def on_login(login_manager):
 	default_app = frappe.db.get_single_value("System Settings", "default_app")
 	if default_app == "lms":
 		frappe.local.response["home_page"] = get_lms_route()
+
+
+def on_session_creation(login_manager):
+	# Frappe creates the CSRF token lazily, on the first page render, and every request
+	# writes its whole copy of the session back when it ends. On a fresh session the SPA
+	# page and its API calls run in parallel, so a request that loaded the session before
+	# the token existed can write a token-less copy over it; the next render then mints a
+	# different token and the page's POSTs fail with CSRFTokenError. Minting it here, while
+	# the session is still private to the login request, means no token-less copy exists.
+	frappe.sessions.get_csrf_token()
