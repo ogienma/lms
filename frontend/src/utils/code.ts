@@ -80,28 +80,30 @@ for (const [name, language] of Object.entries(HLJS_LANGUAGES)) {
 	hljs.registerLanguage(name, language)
 }
 
-// Atom One Dark, self-hosted and scoped tightly to out-specify frappe-ui's .ProseMirror .hljs-* rules.
+// Atom One token roles, self-hosted and scoped tightly to out-specify frappe-ui's
+// .ProseMirror .hljs-* rules. Colours come from the --code-* variables in
+// index.css, which switch between One Light and One Dark with the app theme.
 const CODEBOX_THEME_CSS = `
 .codeBoxHolder { max-width: 100%; }
 .codeBoxHolder .codeBoxTextArea { overflow-x: auto; max-width: 100%; }
-.codeBoxHolder .codeBoxTextArea.dark.hljs { color: #abb2bf; background: #282c34; }
-.codeBoxHolder .codeBoxTextArea.dark { caret-color: #abb2bf; }
+.codeBoxHolder .codeBoxTextArea.dark.hljs { color: var(--code-fg); background: var(--code-bg); }
+.codeBoxHolder .codeBoxTextArea.dark { caret-color: var(--code-fg); }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-comment,
-.codeBoxHolder .codeBoxTextArea.dark .hljs-quote { color: #5c6370; font-style: italic; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-quote { color: var(--code-comment); font-style: italic; }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-doctag,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-keyword,
-.codeBoxHolder .codeBoxTextArea.dark .hljs-formula { color: #c678dd; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-formula { color: var(--code-keyword); }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-section,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-name,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-selector-tag,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-deletion,
-.codeBoxHolder .codeBoxTextArea.dark .hljs-subst { color: #e06c75; }
-.codeBoxHolder .codeBoxTextArea.dark .hljs-literal { color: #56b6c2; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-subst { color: var(--code-name); }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-literal { color: var(--code-literal); }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-string,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-regexp,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-addition,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-attribute,
-.codeBoxHolder .codeBoxTextArea.dark .hljs-meta .hljs-string { color: #98c379; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-meta .hljs-string { color: var(--code-string); }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-attr,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-variable,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-template-variable,
@@ -109,16 +111,16 @@ const CODEBOX_THEME_CSS = `
 .codeBoxHolder .codeBoxTextArea.dark .hljs-selector-class,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-selector-attr,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-selector-pseudo,
-.codeBoxHolder .codeBoxTextArea.dark .hljs-number { color: #d19a66; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-number { color: var(--code-number); }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-symbol,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-bullet,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-link,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-meta,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-selector-id,
-.codeBoxHolder .codeBoxTextArea.dark .hljs-title { color: #61aeee; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-title { color: var(--code-title); }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-built_in,
 .codeBoxHolder .codeBoxTextArea.dark .hljs-title.class_,
-.codeBoxHolder .codeBoxTextArea.dark .hljs-class .hljs-title { color: #e6c07b; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-class .hljs-title { color: var(--code-built-in); }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-emphasis { font-style: italic; }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-strong { font-weight: bold; }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-link { text-decoration: underline; }

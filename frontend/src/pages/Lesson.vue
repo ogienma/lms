@@ -1273,7 +1273,7 @@ usePageMeta(() => {
 }
 
 .lesson-content img {
-	border: 1px solid theme('colors.gray.200');
+	border: 1px solid var(--outline-gray-1);
 	border-radius: 0.5rem;
 }
 
@@ -1281,14 +1281,14 @@ usePageMeta(() => {
 	display: block;
 	overflow-x: auto;
 	padding: 1rem 1.25rem;
-	background: #011627;
-	color: #d6deeb;
+	background: var(--code-bg);
+	color: var(--code-fg);
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 }
 
 .lesson-content a {
-	color: theme('colors.gray.900');
+	color: var(--ink-gray-9);
 	text-decoration: underline;
 	font-weight: 500;
 }
@@ -1386,14 +1386,13 @@ usePageMeta(() => {
 	display: flex !important;
 }
 
-.dark {
-	color: #abb2bf;
-	background-color: #282c34;
-}
-
+/* CodeBox's `dark` / `light` config classes. Both read the theme-switched
+   --code-* palette (index.css), so a block follows the app theme instead of
+   staying pinned to the palette it was configured with. */
+.dark,
 .light {
-	color: #383a42;
-	background-color: #fafafa;
+	color: var(--code-fg);
+	background-color: var(--code-bg);
 }
 
 .codeBoxTextArea {
@@ -1401,7 +1400,7 @@ usePageMeta(() => {
 }
 
 .tc-table {
-	border-inline-start: 1px solid #e8e8eb;
+	border-inline-start: 1px solid var(--outline-gray-1);
 }
 
 .plyr__control--overlaid {
@@ -1417,7 +1416,7 @@ usePageMeta(() => {
 }
 
 .plyr--video {
-	border: 1px solid theme('colors.gray.200');
+	border: 1px solid var(--outline-gray-1);
 	border-radius: 8px;
 }
 

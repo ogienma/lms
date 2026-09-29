@@ -173,3 +173,34 @@ div:has(> [role='switch']) [data-slot='label'] {
 .prose {
 	--tw-prose-bullets: var(--ink-gray-4);
 }
+
+/* Syntax palette for lesson code blocks (CodeBox and `.lesson-content code`).
+   Code needs its own colours, but they have to follow the app theme rather
+   than being pinned to one: Atom One Light under the light theme, Atom One
+   Dark under data-theme="dark". Consumers read only these variables, so a
+   theme switch repaints every block without re-rendering it. */
+:root {
+	--code-bg: #fafafa;
+	--code-fg: #383a42;
+	--code-comment: #a0a1a7;
+	--code-keyword: #a626a4;
+	--code-name: #e45649;
+	--code-literal: #0184bb;
+	--code-string: #50a14f;
+	--code-number: #986801;
+	--code-title: #4078f2;
+	--code-built-in: #c18401;
+}
+
+[data-theme='dark'] {
+	--code-bg: #282c34;
+	--code-fg: #abb2bf;
+	--code-comment: #5c6370;
+	--code-keyword: #c678dd;
+	--code-name: #e06c75;
+	--code-literal: #56b6c2;
+	--code-string: #98c379;
+	--code-number: #d19a66;
+	--code-title: #61aeee;
+	--code-built-in: #e6c07b;
+}
