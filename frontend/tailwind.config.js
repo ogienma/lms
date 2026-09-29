@@ -13,6 +13,12 @@ export default {
 	],
 	theme: {
 		extend: {
+			// Archivo is the brand/UI face; Atkinson Hyperlegible Next is for text
+			// people read at length. Stacks live in public/css/fonts.css.
+			fontFamily: {
+				sans: 'var(--font-ui)',
+				reading: 'var(--font-reading)',
+			},
 			strokeWidth: {
 				1.5: '1.5',
 			},

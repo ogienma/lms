@@ -173,3 +173,41 @@ div:has(> [role='switch']) [data-slot='label'] {
 .prose {
 	--tw-prose-bullets: var(--ink-gray-4);
 }
+
+/* Typography. frappe-ui's base layer sets `html { font-family: InterVar, … }`
+   and its style.css still declares InterVar, so the face has to be replaced
+   here, after that import, rather than only extending the Tailwind sans stack.
+   The stacks and @font-face rules live in lms/public/css/fonts.css (loaded from
+   index.html) so the Frappe login layer shares them.
+
+   The same base layer sets `font-variation-settings: 'opsz' 24, 'cv11' 1`,
+   which are Inter axes and features. Neither font has them, so reset it and
+   let each face use its own defaults. */
+html {
+	font-family: var(--font-ui);
+}
+
+html,
+body,
+button,
+p,
+span,
+div {
+	font-variation-settings: normal;
+}
+
+/* Lesson bodies, instructor notes, assignments, discussion replies and the
+   block-editor reader all carry `.prose`. That is the reading surface, so it
+   gets the accessible face; headings inside it stay on the brand face, and
+   code-like elements keep a monospace stack. */
+.prose {
+	font-family: var(--font-reading);
+}
+
+.prose :where(h1, h2, h3, h4, h5, h6) {
+	font-family: var(--font-ui);
+}
+
+.prose :where(code, pre, kbd, samp) {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}

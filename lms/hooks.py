@@ -30,7 +30,9 @@ def get_lms_path():
 # app_include_js = "/assets/lms/js/lms.js"
 
 # include js, css files in header of web template
-web_include_css = "course_card.bundle.css"
+# Typography for Frappe's website layer (login, web pages); the SPA loads the same
+# fonts.css from frontend/index.html so the two surfaces share one source.
+web_include_css = ["/assets/lms/css/fonts.css", "course_card.bundle.css"]
 web_include_js = []
 
 # include custom scss in every website theme (without file extension ".scss")
