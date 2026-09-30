@@ -7,15 +7,18 @@ import ImageAltField from '@/components/ImageAltField.vue'
 const makeEditor = (attrs: Record<string, unknown> | null) => {
 	const listeners = new Set<() => void>()
 	const run = vi.fn()
-	const updateAttributes = vi.fn(() => ({ run }))
+	const setNodeSelection = vi.fn(() => ({ run }))
+	const updateAttributes = vi.fn(() => ({ setNodeSelection }))
 	return {
 		isEditable: true,
+		state: { selection: { from: 7 } },
 		isActive: (name: string) => name === 'image' && attrs !== null,
 		getAttributes: () => attrs ?? {},
 		chain: () => ({ updateAttributes }),
 		on: (_: string, fn: () => void) => listeners.add(fn),
 		off: (_: string, fn: () => void) => listeners.delete(fn),
 		updateAttributes,
+		setNodeSelection,
 		fire: () => listeners.forEach((fn) => fn()),
 	}
 }
@@ -52,6 +55,13 @@ describe('ImageAltField', () => {
 		const w = mountWith(editor)
 		await w.find('input[type=text]').setValue('')
 		expect(editor.updateAttributes).toHaveBeenCalledWith('image', { alt: null })
+	})
+
+	it('reselects the image so the row survives the update', async () => {
+		const editor = makeEditor({ alt: null })
+		const w = mountWith(editor)
+		await w.find('input[type=text]').setValue('A')
+		expect(editor.setNodeSelection).toHaveBeenCalledWith(7)
 	})
 
 	it('marks an image decorative with an empty alt and disables the field', async () => {

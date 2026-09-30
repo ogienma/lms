@@ -52,20 +52,24 @@ function sync() {
 	image.value = { alt: alt ?? '', decorative: alt === '' }
 }
 
+// updateAttributes swaps the image node, which collapses the node selection to
+// a text cursor and would unmount this row after the first keystroke. Put the
+// selection back in the same transaction.
+function updateImage(attrs: { alt: string | null }) {
+	const editor = props.editor
+	if (!editor) return
+	const { from } = editor.state.selection
+	editor.chain().updateAttributes('image', attrs).setNodeSelection(from).run()
+}
+
 // An emptied field is null, not '': '' means "decorative" and would flip the
 // checkbox and disable the field under the author's cursor.
 function setAlt(alt: string) {
-	props.editor
-		?.chain()
-		.updateAttributes('image', { alt: alt || null })
-		.run()
+	updateImage({ alt: alt || null })
 }
 
 function setDecorative(on: boolean) {
-	props.editor
-		?.chain()
-		.updateAttributes('image', { alt: on ? '' : null })
-		.run()
+	updateImage({ alt: on ? '' : null })
 }
 
 let bound: Editor | null = null
