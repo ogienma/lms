@@ -15,7 +15,7 @@
 				class="w-full overflow-x-auto rounded-t-lg border border-outline-elevation-2"
 				:items="toolbar"
 			/>
-			<EditorContent :class="editorClass" />
+			<EditorContent :class="editorClass" :aria-label="accessibleName" />
 		</template>
 	</Editor>
 </template>
@@ -60,6 +60,9 @@ const props = withDefaults(
 		fixedMenu?: boolean
 		editorClass?: string
 		placeholder?: string
+		// Names the contenteditable textbox for assistive tech; a visible <label>
+		// elsewhere on the page does not reach it. Falls back to the placeholder.
+		ariaLabel?: string
 		mentions?: Mention[] | null
 		uploadArgs?: Record<string, unknown>
 	}>(),
@@ -69,9 +72,14 @@ const props = withDefaults(
 		fixedMenu: false,
 		editorClass: 'prose-sm',
 		placeholder: '',
+		ariaLabel: '',
 		mentions: null,
 		uploadArgs: undefined,
 	}
+)
+
+const accessibleName = computed(
+	() => props.ariaLabel || props.placeholder || __('Rich text editor')
 )
 
 const emit = defineEmits<{ change: [value: string] }>()

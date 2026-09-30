@@ -79,6 +79,32 @@ main#main-content {
 	--surface-sidebar: var(--surface-gray-1);
 }
 
+/* WCAG AA contrast (EMDRIA, #36). frappe-ui's secondary/placeholder ink and its
+   default focus ring sit below the minimums, so they are corrected once, here,
+   rather than per component:
+   - --ink-gray-4 (placeholders, hints) and --ink-gray-5 (secondary text) reach
+     4.5:1 on white and on the surface-gray-1..3 fills inputs and hovers use in
+     light mode, and on surface-base..gray-2 in dark mode.
+   - --outline-gray-4 is frappe-ui's focus border for inputs and combobox
+     triggers (2.85:1 light, 2.2:1 dark); 3:1 is the floor for a UI boundary.
+   - --focus-outline-default was #c9c9c9 (1.7:1 on white) light and #464646
+     (1.9:1) dark; the keyboard ring needs 3:1 against the page. Brand brown on
+     light, brand salmon on dark.
+   src/tests/contrast.test.ts pins these ratios against the frappe-ui palette. */
+:root {
+	--ink-gray-4: #6b6b6b;
+	--ink-gray-5: #626262;
+	--outline-gray-4: #767676;
+	--focus-outline-default: 2px solid #3c210e;
+}
+[data-theme='dark'] {
+	--ink-gray-4: #949494;
+	--ink-gray-5: #a0a0a0;
+	--ink-gray-6: #aaaaaa;
+	--outline-gray-4: #767676;
+	--focus-outline-default: 3px solid #f8c4b7;
+}
+
 /* frappe-ui beta.7 FormLabel differs from InputLabel; match standalone labels
    (and stray inline <label>s) to the field-label style. */
 label.block:not([data-slot='label']) {
