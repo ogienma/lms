@@ -13,9 +13,9 @@ const REPLACEMENT =
 
 // Regions the app moves focus to (skip link, route change, form hand-back).
 const PROGRAMMATIC_TARGETS = new Set([
-	'components/Layouts/MobileLayout.vue',
-	'components/Layouts/NoSidebarLayout.vue',
-	'components/Layouts/DesktopLayout.vue',
+	'components/Layouts/pages/mobile/MobileLayout.vue',
+	'components/Layouts/pages/desktop/NoSidebarLayout.vue',
+	'components/Layouts/pages/desktop/DesktopLayout.vue',
 	'components/Persona/PersonaCard.vue',
 	// The outline is removed here, but the visible replacement (a border change
 	// and shadow) lives on a wrapper or a sibling class string: reviewed by hand.

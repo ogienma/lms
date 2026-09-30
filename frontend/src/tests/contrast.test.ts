@@ -2,19 +2,46 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import postcss from 'postcss'
-import colors from '../../node_modules/frappe-ui/tailwind/generated/colors.json'
+import { semanticColors } from 'frappe-ui/tailwind/tokens'
 
 // EMDRIA #36: WCAG AA. Ratios are computed from the values index.css actually
 // declares (overrides) layered over frappe-ui's own token data, so an upstream
 // palette change, or an edit here that drops below the minimum, fails this suite.
 
 type Theme = 'light' | 'dark'
-const palette = colors as any
+const semantic = semanticColors as Record<
+	Theme,
+	Record<string, Record<string, string>>
+>
 
-const resolveRef = (ref: string): string => {
-	if (ref.startsWith('neutral/')) return palette.neutral[ref.split('/')[1]]
-	const [group, name, shade] = ref.split('/')
-	return palette[group][name][shade]
+// frappe-ui ships oklch values; the ratios below are computed on sRGB hex.
+const oklchToHex = (value: string): string => {
+	if (value.startsWith('#')) return value
+	const m = value.match(/^oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/)
+	if (!m) throw new Error(`Unsupported colour: ${value}`)
+	const [L, C, H] = [Number(m[1]), Number(m[2]), (Number(m[3]) * Math.PI) / 180]
+	const a = C * Math.cos(H)
+	const b = C * Math.sin(H)
+	const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
+	const mm = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3
+	const sc = (L - 0.0894841775 * a - 1.291485548 * b) ** 3
+	const lin = [
+		4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * sc,
+		-1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * sc,
+		-0.0041960863 * l - 0.7034186147 * mm + 1.707614701 * sc,
+	]
+	return (
+		'#' +
+		lin
+			.map((v) => {
+				const c = Math.min(1, Math.max(0, v))
+				const g = c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055
+				return Math.round(g * 255)
+					.toString(16)
+					.padStart(2, '0')
+			})
+			.join('')
+	)
 }
 
 const overrides = (theme: Theme): Record<string, string> => {
@@ -31,7 +58,7 @@ const overrides = (theme: Theme): Record<string, string> => {
 const token = (theme: Theme, category: string, name: string): string => {
 	const own = overrides(theme)[`--${category}-${name}`]
 	if (own) return own
-	return resolveRef(palette.themedVariables[theme][category][name])
+	return oklchToHex(semantic[theme][category][name])
 }
 
 const luminance = (hex: string): number => {

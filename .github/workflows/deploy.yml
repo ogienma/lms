@@ -17,8 +17,10 @@ concurrency:
 
 env:
   IMAGE: ghcr.io/ogienma/lms
-  # Pinned on purpose: framework upgrades get their own PR instead of riding along with other changes.
-  FRAPPE_REF: v16.34.0
+  # Frappe 17 has no release tag yet, and bench can only clone frappe by branch or tag (not a commit),
+  # so this follows develop. The commit that actually went in is resolved below and recorded as an
+  # image label, like payments. Once v17 is tagged, pin that tag here and drop the moving ref.
+  FRAPPE_REF: develop
   # Build tooling pinned to a commit so rebuilding the same lms commit uses the same Containerfile.
   FRAPPE_DOCKER_REF: 654c067add9d39191ac174d75525bc537c7602ce
   # bench can only clone payments by branch (and strips .git), so it can't be pinned to a commit.
@@ -31,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       payments_sha: ${{ steps.refs.outputs.payments_sha }}
+      frappe_sha: ${{ steps.refs.outputs.frappe_sha }}
     steps:
       # bench clones lms by branch name, not by commit, so the image only contains github.sha
       # if nothing was pushed since this run was triggered.
@@ -48,6 +51,9 @@ jobs:
           sha=$(git ls-remote https://github.com/frappe/payments "refs/heads/$PAYMENTS_BRANCH" | cut -f1)
           test -n "$sha"
           echo "payments_sha=$sha" >> "$GITHUB_OUTPUT"
+          fsha=$(git ls-remote https://github.com/frappe/frappe "refs/heads/$FRAPPE_REF" | cut -f1)
+          test -n "$fsha"
+          echo "frappe_sha=$fsha" >> "$GITHUB_OUTPUT"
 
   # Each architecture builds natively on its own runner and pushes by digest (no tag yet).
   build:
@@ -103,6 +109,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             io.github.ogienma.lms.frappe-ref=${{ env.FRAPPE_REF }}
+            io.github.ogienma.lms.frappe-sha=${{ needs.resolve.outputs.frappe_sha }}
             io.github.ogienma.lms.payments-ref=${{ needs.resolve.outputs.payments_sha }}
             io.github.ogienma.lms.frappe-docker-ref=${{ env.FRAPPE_DOCKER_REF }}
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
@@ -115,6 +122,8 @@ jobs:
           docker run --rm "$REF" cat sites/apps.txt
           docker run --rm "$REF" cat sites/apps.txt | grep -qx payments
           docker run --rm "$REF" cat sites/apps.txt | grep -qx lms
+          # lms develop requires Frappe 17; fail here rather than on the box.
+          docker run --rm "$REF" bench version | tee /dev/stderr | grep -qE '^frappe 17\.'
           docker run --rm "$REF" test -x /usr/bin/chromium-headless-shell
           docker run --rm "$REF" wkhtmltopdf --version
           rev=$(docker image inspect "$REF" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')
