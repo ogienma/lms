@@ -41,7 +41,9 @@ def lesson_images_missing_alt(content: str | None) -> list[str]:
 	for block in blocks:
 		data = block.get("data") or {}
 		if block.get("type") == "image":
-			if data.get("alt") is None and not data.get("decorative"):
+			# The editor saves an undescribed image as alt="" too, so only the decorative
+			# flag tells "left empty" from "marked decorative".
+			if not (data.get("alt") or "").strip() and not data.get("decorative"):
 				missing.append(data.get("url", ""))
 			continue
 		for value in data.values():

@@ -19,10 +19,12 @@ class TestImageAltAudit(UnitTestCase):
 			{"type": "image", "data": {"url": "no-alt.png", "caption": "x"}},
 			{"type": "image", "data": {"url": "ok.png", "alt": "A dog"}},
 			{"type": "image", "data": {"url": "deco.png", "alt": "", "decorative": True}},
+			{"type": "image", "data": {"url": "empty.png", "alt": "", "decorative": False}},
+			{"type": "image", "data": {"url": "blank.png", "alt": "  "}},
 			{"type": "paragraph", "data": {"text": '<img src="inline.png">'}},
 		]
 		result = lesson_images_missing_alt(json.dumps({"blocks": blocks}))
-		self.assertEqual(result, ["no-alt.png", "inline.png"])
+		self.assertEqual(result, ["no-alt.png", "empty.png", "blank.png", "inline.png"])
 
 	def test_lesson_content_that_is_not_json(self):
 		self.assertEqual(lesson_images_missing_alt("not json"), [])

@@ -28,19 +28,35 @@ export class AltImage extends (SimpleImage as any) {
 
 	render(): HTMLElement {
 		const wrapper: HTMLElement = super.render()
-		this.altInput = this._make('input', [this.CSS.input, 'cdx-simple-image__alt'], {
-			value: this.data.alt,
-			placeholder: this.api.i18n.t('Describe the image for screen readers'),
-			disabled: this.readOnly || this.data.decorative,
-		}) as HTMLInputElement
-		this.altInput.setAttribute('aria-label', 'Image alt text')
+		this.altInput = this._make(
+			'input',
+			[
+				this.CSS.input,
+				'cdx-simple-image__alt',
+				'bg-transparent',
+				'text-ink-gray-9',
+			],
+			{
+				value: this.data.alt,
+				placeholder: this.api.i18n.t('Describe the image for screen readers'),
+				disabled: this.readOnly || this.data.decorative,
+			}
+		) as HTMLInputElement
+		this.altInput.setAttribute(
+			'aria-label',
+			this.api.i18n.t('Describe the image for screen readers')
+		)
 		this.altInput.addEventListener('input', () => {
 			this.data.alt = this.altInput!.value
 			this._applyAlt()
 		})
-		// Parent appends the image holder and caption once the image loads;
-		// the alt field goes in now so it never appears after them.
-		if (!this.readOnly) wrapper.appendChild(this.altInput)
+		// The parent attaches the image holder and caption once the image has
+		// loaded. Follow it, so the alt field lands under them and not above.
+		const attach = this.nodes.image.onload
+		this.nodes.image.onload = (event: Event) => {
+			attach(event)
+			if (!this.readOnly) wrapper.appendChild(this.altInput)
+		}
 		this._applyAlt()
 		return wrapper
 	}
