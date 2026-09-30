@@ -139,8 +139,12 @@
 						},
 					}"
 					class="flex items-center justify-center"
+					:aria-label="__('Complete your profile')"
 				>
-					<span class="lucide-user size-4 text-ink-gray-7 cursor-pointer" />
+					<span
+						class="lucide-user size-4 text-ink-gray-7 cursor-pointer"
+						aria-hidden="true"
+					/>
 				</router-link>
 			</Tooltip>
 			<TrialBanner

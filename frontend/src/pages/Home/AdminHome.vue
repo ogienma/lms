@@ -88,7 +88,7 @@
 									v-if="user.data?.is_moderator || user.data?.is_evaluator"
 									:href="safeUrl(cls.start_url)"
 									v-external
-									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-5 h-7 text-base px-2 rounded"
 									:class="cls.join_url ? 'w-full' : 'w-1/2'"
 								>
 									<span class="lucide-monitor size-4" />
@@ -97,7 +97,7 @@
 								<a
 									:href="safeUrl(cls.join_url)"
 									v-external
-									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-5 h-7 text-base px-2 rounded"
 								>
 									<span class="lucide-video size-4" />
 									{{ __('Join') }}
