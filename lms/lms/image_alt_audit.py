@@ -26,7 +26,11 @@ def html_images_missing_alt(html: str | None) -> list[str]:
 	"""src of every <img> in `html` that has no alt attribute at all."""
 	if not isinstance(html, str) or "<img" not in html.lower():
 		return []
-	return [img.get("src", "") for img in BeautifulSoup(html, "html.parser").find_all("img") if img.get("alt") is None]
+	return [
+		img.get("src", "")
+		for img in BeautifulSoup(html, "html.parser").find_all("img")
+		if img.get("alt") is None
+	]
 
 
 def lesson_images_missing_alt(content: str | None) -> list[str]:
