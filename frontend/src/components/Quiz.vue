@@ -427,77 +427,86 @@
 						:aria-labelledby="`quiz-question-${activeQuestion}`"
 					>
 						<div v-for="index in MAX_OPTIONS" :key="index">
-						<label
-							v-if="questionDetails.data[`option_${index}`]"
-							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full min-w-0 cursor-pointer focus:border-blue-600"
-						>
-							<input
-								v-if="!showAnswers.length && !questionDetails.data.multiple"
-								type="radio"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 focus:ring-outline-gray-5"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
+							<label
+								v-if="questionDetails.data[`option_${index}`]"
+								class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full min-w-0 cursor-pointer focus:border-blue-600"
+							>
+								<input
+									v-if="!showAnswers.length && !questionDetails.data.multiple"
+									type="radio"
+									:name="encodeURIComponent(questionDetails.data.question)"
+									class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 focus:ring-outline-gray-5"
+									@change="markAnswer(index)"
+									:checked="selectedOptions[index - 1]"
+								/>
 
-							<input
-								v-else-if="!showAnswers.length && questionDetails.data.multiple"
-								type="checkbox"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 rounded-sm focus:ring-outline-gray-5"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
-							<div
-								v-else-if="quiz.data.show_answers"
-								v-for="(answer, idx) in showAnswers"
-								:key="idx"
-								class="shrink-0"
-							>
-								<div v-if="index - 1 == idx">
-									<template v-if="answer == 1">
-										<span
-											class="lucide-check-circle w-4 h-4 text-ink-green-5"
-											aria-hidden="true"
-										/>
-										<span class="sr-only">{{ __('Your answer: correct') }}</span>
-									</template>
-									<template v-else-if="answer == 2">
-										<span
-											class="lucide-minus-circle w-4 h-4 text-ink-green-5"
-											aria-hidden="true"
-										/>
-										<span class="sr-only">{{
-											__('Correct answer you did not select')
-										}}</span>
-									</template>
-									<template v-else-if="answer == 0">
-										<span
-											class="lucide-x-circle w-4 h-4 text-ink-red-6"
-											aria-hidden="true"
-										/>
-										<span class="sr-only">{{ __('Your answer: incorrect') }}</span>
-									</template>
-									<template v-else>
-										<span class="lucide-minus-circle w-4 h-4" aria-hidden="true" />
-										<span class="sr-only">{{ __('Not selected') }}</span>
-									</template>
+								<input
+									v-else-if="
+										!showAnswers.length && questionDetails.data.multiple
+									"
+									type="checkbox"
+									:name="encodeURIComponent(questionDetails.data.question)"
+									class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 rounded-sm focus:ring-outline-gray-5"
+									@change="markAnswer(index)"
+									:checked="selectedOptions[index - 1]"
+								/>
+								<div
+									v-else-if="quiz.data.show_answers"
+									v-for="(answer, idx) in showAnswers"
+									:key="idx"
+									class="shrink-0"
+								>
+									<div v-if="index - 1 == idx">
+										<template v-if="answer == 1">
+											<span
+												class="lucide-check-circle w-4 h-4 text-ink-green-5"
+												aria-hidden="true"
+											/>
+											<span class="sr-only">{{
+												__('Your answer: correct')
+											}}</span>
+										</template>
+										<template v-else-if="answer == 2">
+											<span
+												class="lucide-minus-circle w-4 h-4 text-ink-green-5"
+												aria-hidden="true"
+											/>
+											<span class="sr-only">{{
+												__('Correct answer you did not select')
+											}}</span>
+										</template>
+										<template v-else-if="answer == 0">
+											<span
+												class="lucide-x-circle w-4 h-4 text-ink-red-6"
+												aria-hidden="true"
+											/>
+											<span class="sr-only">{{
+												__('Your answer: incorrect')
+											}}</span>
+										</template>
+										<template v-else>
+											<span
+												class="lucide-minus-circle w-4 h-4"
+												aria-hidden="true"
+											/>
+											<span class="sr-only">{{ __('Not selected') }}</span>
+										</template>
+									</div>
 								</div>
-							</div>
-							<span
-								class="ms-2 min-w-0 flex-1 break-words text-ink-gray-9 [&_img]:h-auto [&_img]:max-w-full"
-								v-safe-html:rich="questionDetails.data[`option_${index}`]"
+								<span
+									class="ms-2 min-w-0 flex-1 break-words text-ink-gray-9 [&_img]:h-auto [&_img]:max-w-full"
+									v-safe-html:rich="questionDetails.data[`option_${index}`]"
+								>
+								</span>
+							</label>
+							<div
+								v-if="questionDetails.data[`explanation_${index}`]"
+								class="mt-2 break-words text-xs text-ink-gray-7"
+								v-show="showAnswers.length"
 							>
-							</span>
-						</label>
-						<div
-							v-if="questionDetails.data[`explanation_${index}`]"
-							class="mt-2 break-words text-xs text-ink-gray-7"
-							v-show="showAnswers.length"
-						>
-							{{ questionDetails.data[`explanation_${index}`] }}
+								{{ questionDetails.data[`explanation_${index}`] }}
+							</div>
 						</div>
-					</div>
 					</div>
 					<div v-else-if="questionDetails.data.type == 'User Input'">
 						<FormControl
@@ -509,10 +518,10 @@
 						<div v-if="showAnswers.length">
 							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
 								<template #prefix>
-										<span
-											class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
-											aria-hidden="true"
-										/>
+									<span
+										class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
+										aria-hidden="true"
+									/>
 								</template>
 							</Badge>
 							<Badge v-else theme="red" :label="__('Incorrect')">
@@ -700,7 +709,9 @@
 						v-for="index in reviewQuestions"
 						:key="index"
 						type="button"
-						:aria-label="__('Go to question {0}, marked for review').format(index)"
+						:aria-label="
+							__('Go to question {0}, marked for review').format(index)
+						"
 						@click="switchQuestion(index)"
 						class="w-6 h-6 rounded-full flex items-center justify-center text-sm cursor-pointer bg-surface-gray-3"
 					>
