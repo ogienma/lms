@@ -18,6 +18,7 @@
 			<!-- Timer pill -->
 			<div
 				v-if="quiz.data.duration"
+				role="timer"
 				class="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full transition-colors"
 				:class="{
 					'bg-surface-red-1 text-ink-red-6': timerUrgency === 'critical',
@@ -25,10 +26,13 @@
 					'bg-surface-gray-3 text-ink-gray-7': timerUrgency === 'normal',
 				}"
 			>
-				<span class="lucide-timer size-4" />
+				<span class="lucide-timer size-4" aria-hidden="true" />
 				{{ formatTimer(timer) }}
 			</div>
 			<div v-else />
+			<div v-if="quiz.data.duration" class="sr-only" role="status">
+				{{ timerAnnouncement }}
+			</div>
 
 			<!-- Violation pill -->
 			<ProctoringMonitor
@@ -396,6 +400,7 @@
 			</div>
 		</div>
 		<div v-else-if="!quizSubmission.data">
+			<div class="sr-only" role="status">{{ liveMessage }}</div>
 			<div v-for="(question, qtidx) in questions" :key="question.name">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
@@ -412,14 +417,16 @@
 						</div>
 					</div>
 					<div
+						:id="`quiz-question-${activeQuestion}`"
 						class="text-ink-gray-9 font-semibold mt-2 leading-5 break-words [&_img]:h-auto [&_img]:max-w-full"
 						v-safe-html:rich="questionDetails.data.question"
 					></div>
 					<div
 						v-if="questionDetails.data.type == 'Choices'"
-						v-for="index in MAX_OPTIONS"
-						:key="index"
+						:role="questionDetails.data.multiple ? 'group' : 'radiogroup'"
+						:aria-labelledby="`quiz-question-${activeQuestion}`"
 					>
+						<div v-for="index in MAX_OPTIONS" :key="index">
 						<label
 							v-if="questionDetails.data[`option_${index}`]"
 							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full min-w-0 cursor-pointer focus:border-blue-600"
@@ -428,7 +435,7 @@
 								v-if="!showAnswers.length && !questionDetails.data.multiple"
 								type="radio"
 								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 focus:ring-outline-elevation-2"
+								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 focus:ring-outline-gray-5"
 								@change="markAnswer(index)"
 								:checked="selectedOptions[index - 1]"
 							/>
@@ -437,7 +444,7 @@
 								v-else-if="!showAnswers.length && questionDetails.data.multiple"
 								type="checkbox"
 								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 rounded-sm focus:ring-outline-elevation-2"
+								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 rounded-sm focus:ring-outline-gray-5"
 								@change="markAnswer(index)"
 								:checked="selectedOptions[index - 1]"
 							/>
@@ -448,19 +455,33 @@
 								class="shrink-0"
 							>
 								<div v-if="index - 1 == idx">
-									<span
-										v-if="answer == 1"
-										class="lucide-check-circle w-4 h-4 text-ink-green-5"
-									/>
-									<span
-										v-else-if="answer == 2"
-										class="lucide-minus-circle w-4 h-4 text-ink-green-5"
-									/>
-									<span
-										v-else-if="answer == 0"
-										class="lucide-x-circle w-4 h-4 text-ink-red-6"
-									/>
-									<span v-else class="lucide-minus-circle w-4 h-4" />
+									<template v-if="answer == 1">
+										<span
+											class="lucide-check-circle w-4 h-4 text-ink-green-5"
+											aria-hidden="true"
+										/>
+										<span class="sr-only">{{ __('Your answer: correct') }}</span>
+									</template>
+									<template v-else-if="answer == 2">
+										<span
+											class="lucide-minus-circle w-4 h-4 text-ink-green-5"
+											aria-hidden="true"
+										/>
+										<span class="sr-only">{{
+											__('Correct answer you did not select')
+										}}</span>
+									</template>
+									<template v-else-if="answer == 0">
+										<span
+											class="lucide-x-circle w-4 h-4 text-ink-red-6"
+											aria-hidden="true"
+										/>
+										<span class="sr-only">{{ __('Your answer: incorrect') }}</span>
+									</template>
+									<template v-else>
+										<span class="lucide-minus-circle w-4 h-4" aria-hidden="true" />
+										<span class="sr-only">{{ __('Not selected') }}</span>
+									</template>
 								</div>
 							</div>
 							<span
@@ -477,6 +498,7 @@
 							{{ questionDetails.data[`explanation_${index}`] }}
 						</div>
 					</div>
+					</div>
 					<div v-else-if="questionDetails.data.type == 'User Input'">
 						<FormControl
 							v-model="possibleAnswer"
@@ -487,14 +509,18 @@
 						<div v-if="showAnswers.length">
 							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
 								<template #prefix>
-									<span
-										class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
-									/>
+										<span
+											class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
+											aria-hidden="true"
+										/>
 								</template>
 							</Badge>
 							<Badge v-else theme="red" :label="__('Incorrect')">
 								<template #prefix>
-									<span class="lucide-x-circle w-4 h-4 text-ink-red-6 me-1" />
+									<span
+										class="lucide-x-circle w-4 h-4 text-ink-red-6 me-1"
+										aria-hidden="true"
+									/>
 								</template>
 							</Badge>
 						</div>
@@ -537,6 +563,9 @@
 								v-for="(item, pidx) in paginationWindow"
 								:key="pidx"
 								:type="item === '...' ? null : 'button'"
+								:aria-label="item === '...' ? null : questionLabel(item)"
+								:aria-current="activeQuestion == item ? 'step' : null"
+								:aria-hidden="item === '...' ? 'true' : null"
 								class="w-6 h-6 rounded-full flex items-center justify-center text-sm"
 								:class="{
 									'cursor-pointer': item !== '...',
@@ -671,6 +700,7 @@
 						v-for="index in reviewQuestions"
 						:key="index"
 						type="button"
+						:aria-label="__('Go to question {0}, marked for review').format(index)"
 						@click="switchQuestion(index)"
 						class="w-6 h-6 rounded-full flex items-center justify-center text-sm cursor-pointer bg-surface-gray-3"
 					>
@@ -708,9 +738,9 @@
 					</p>
 				</div>
 				<div class="p-10 space-y-2 text-center">
-					<div class="text-lg-semibold text-ink-gray-9">
+					<h2 class="text-lg-semibold text-ink-gray-9">
 						{{ __('Quiz Summary') }}
-					</div>
+					</h2>
 					<div
 						v-if="quizSubmission.data.is_open_ended"
 						class="leading-5 text-ink-gray-7"
@@ -1121,6 +1151,37 @@ const timerUrgency = computed(() => {
 	if (pct <= 0.1) return 'critical'
 	if (pct <= 0.25) return 'warning'
 	return 'normal'
+})
+
+const timerAnnouncement = computed(() => {
+	if (timerUrgency.value === 'critical') return __('Time is almost up')
+	if (timerUrgency.value === 'warning') return __('Time is running low')
+	return ''
+})
+
+const questionLabel = (n) => {
+	const label = __('Question {0}').format(n)
+	return attemptedQuestions.value.includes(n)
+		? label + ', ' + __('answered')
+		: label
+}
+
+// One persistent live region: it announces the question you moved to, and
+// after Check whether the answer was right, which the icons alone don't say.
+const liveMessage = computed(() => {
+	if (showAnswers.length) {
+		const answers = showAnswers
+		const correct =
+			questionDetails.data?.type == 'Choices'
+				? !answers.some((a) => a === 0 || a === 2)
+				: !!answers[0]
+		return correct ? __('Correct') : __('Incorrect')
+	}
+	if (!activeQuestion.value) return ''
+	return __('Question {0} of {1}').format(
+		activeQuestion.value,
+		questions.value.length
+	)
 })
 
 const attemptsExhausted = computed(

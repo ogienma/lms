@@ -183,4 +183,28 @@ describe('Quiz remount', () => {
 		expect(resourceState.request).toHaveBeenCalledTimes(2)
 		second.unmount()
 	})
+
+	it('exposes the question to assistive tech as a named group with a live position', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		await wrapper
+			.findAll('button')
+			.find((button) => button.text() === 'Start Quiz')!
+			.trigger('click')
+		await flushPromises()
+
+		const group = wrapper.find('[role=radiogroup]')
+		expect(group.exists()).toBe(true)
+		const labelId = group.attributes('aria-labelledby')
+		expect(labelId).toBeTruthy()
+		expect(wrapper.find('#' + labelId).text()).toContain(
+			'Visible question body',
+		)
+
+		expect(wrapper.find('[role=status]').text()).toBe('Question 1 of 1')
+
+		const current = wrapper.find('[aria-current=step]')
+		expect(current.attributes('aria-label')).toBe('Question 1')
+		wrapper.unmount()
+	})
 })
