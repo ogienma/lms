@@ -24,6 +24,7 @@
 		"node": ">=24"
 	},
 	"devDependencies": {
+		"@axe-core/playwright": "^4.13.0",
 		"@playwright/test": "^1.56.0",
 		"@semantic-release/exec": "^7.1.0",
 		"@semantic-release/git": "^10.0.1"

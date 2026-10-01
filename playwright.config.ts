@@ -24,11 +24,19 @@ export default defineConfig({
 		},
 		{
 			name: "e2e",
+			testIgnore: /a11y\//,
 			use: {
 				...devices["Desktop Chrome"],
 				storageState: authFile,
 			},
 			dependencies: ["setup"],
+		},
+		{
+			// Report-only axe scan of the learner journey (issue #35). Logs in as
+			// its own seeded learner, so no shared admin storageState or setup.
+			name: "a11y",
+			testMatch: /a11y\/.*\.spec\.ts/,
+			use: { ...devices["Desktop Chrome"] },
 		},
 	],
 });

@@ -1,0 +1,242 @@
+{
+  "scannedAt": "2026-10-01T23:44:49.153Z",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "results": [
+    {
+      "id": "login",
+      "url": "/login",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "label[for=\"login_email\"]"
+              ],
+              "html": "<label class=\"text-base text-ink-gray-5 w-full mb-0\" for=\"login_email\">Email</label>"
+            },
+            {
+              "target": [
+                "label[for=\"login_password\"]"
+              ],
+              "html": "<label class=\"text-base text-ink-gray-5 w-full mb-0\" for=\"login_password\">Password</label>"
+            },
+            {
+              "target": [
+                "a[href$=\"#forgot\"]"
+              ],
+              "html": "<a href=\"#forgot\" class=\"text-base text-ink-gray-5\">Forgot password?</a>"
+            }
+          ]
+        },
+        {
+          "id": "image-alt",
+          "impact": "critical",
+          "help": "Images must have alternative text",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/image-alt?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".for-login > .login-content.page-card.gap-5 > .page-card-head.text-left.gap-4 > img"
+              ],
+              "html": "<img class=\"app-logo\" src=\"/assets/frappe/images/frappe-framework-logo.svg\">"
+            }
+          ]
+        }
+      ],
+      "incomplete": []
+    },
+    {
+      "id": "course-list",
+      "url": "/lms/courses",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "id": "course-detail",
+      "url": "/lms/courses/a-guide-to-frappe-learning",
+      "violations": [
+        {
+          "id": "aria-allowed-attr",
+          "impact": "critical",
+          "help": "Elements must only use supported ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-allowed-attr?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "aside > .min-w-80.max-w-sm.border-2 > .aspect-\\[750\\/422\\].rounded-t-5.bg-black-overlay-950 > iframe",
+                ".ytmVideoInfoVideoTitle"
+              ],
+              "html": "<a class=\"ytmVideoInfoVideoTitle\" aria-level=\"2\" href=\"https://www.youtube.com/watch?v=VIt_bsbBjLI\"><span class=\"ytAttributedStringHost ytmVideoInfoLink ytAttributedStringWhiteSpaceNoWrap\" style=\"\">Fr"
+            }
+          ]
+        },
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "help": "Elements must only use permitted ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-prohibited-attr?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "aside > .min-w-80.max-w-sm.border-2 > .aspect-\\[750\\/422\\].rounded-t-5.bg-black-overlay-950 > iframe",
+                "#movie_player"
+              ],
+              "html": "<div class=\"html5-video-player ytp-hide-controls ytp-exp-bottom-control-flexbox ytp-modern-caption ytp-livebadge-color unstarted-mode ytp-small-mode\" tabindex=\"\" id=\"movie_player\" data-version=\"/s/pla"
+            }
+          ]
+        }
+      ],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 1
+        }
+      ]
+    },
+    {
+      "id": "lesson",
+      "url": "/lms/courses/a-guide-to-frappe-learning/learn/1-1",
+      "violations": [
+        {
+          "id": "aria-allowed-attr",
+          "impact": "critical",
+          "help": "Elements must only use supported ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-allowed-attr?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "#youtube-1837",
+                ".ytmVideoInfoVideoTitle"
+              ],
+              "html": "<a class=\"ytmVideoInfoVideoTitle\" aria-level=\"2\" href=\"https://www.youtube.com/watch?v=QhA4h6qD4wY\"><span class=\"ytAttributedStringHost ytmVideoInfoLink ytAttributedStringWhiteSpaceNoWrap\" style=\"\">Wh"
+            }
+          ]
+        },
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "help": "Elements must only use permitted ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-prohibited-attr?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "#youtube-1837",
+                "#movie_player"
+              ],
+              "html": "<div class=\"html5-video-player ytp-hide-controls ytp-exp-bottom-control-flexbox ytp-modern-caption ytp-livebadge-color unstarted-mode ytp-large-width-mode\" tabindex=\"\" id=\"movie_player\" data-version=\""
+            }
+          ]
+        }
+      ],
+      "incomplete": [
+        {
+          "id": "aria-valid-attr-value",
+          "impact": "critical",
+          "nodes": 1
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 3
+        }
+      ]
+    },
+    {
+      "id": "quiz-lesson",
+      "url": "/lms/courses/a-guide-to-frappe-learning/learn/3-1",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "id": "quiz-question",
+      "url": "/lms/quiz/do-you-know-frappe-learning",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 1
+        }
+      ]
+    },
+    {
+      "id": "assignment-lesson",
+      "url": "/lms/courses/a-guide-to-frappe-learning/learn/3-2",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 2
+        }
+      ]
+    },
+    {
+      "id": "assignment-submission",
+      "url": "/lms/assignment-submission/accessibility-walkthrough-assignment/new",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "id": "certificates",
+      "url": "/lms/user/a11y/certificates",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-valid-attr-value",
+          "impact": "critical",
+          "nodes": 1
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 2
+        }
+      ]
+    },
+    {
+      "id": "certificate-print-view",
+      "url": "/printview?doctype=LMS%20Certificate&name=mjafok201t&format=Certificate&no_letterhead=1",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".certificate-container > div:nth-child(5) > div:nth-child(1)"
+              ],
+              "html": "<div style=\"margin-bottom: 0.5rem; color: gray; font-weight: 500;\">\n            Instructor\n        </div>"
+            }
+          ]
+        }
+      ],
+      "incomplete": [
+        {
+          "id": "bypass",
+          "impact": "serious",
+          "nodes": 1
+        }
+      ]
+    }
+  ]
+}
