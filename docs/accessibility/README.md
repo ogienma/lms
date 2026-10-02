@@ -36,6 +36,31 @@ Results land in this folder: `axe-summary.md`, `axe-results.json` (every node) a
 Clean on the automated scan: course list, quiz start screen, quiz question view,
 assignment lesson, assignment submission.
 
+## Upstream audit (frappe-ui, searched 2026-10-02)
+
+The "community audit" is five issues filed on 8 May 2026 by two outside contributors,
+plus two later ones. All are open and none has a linked fix PR. We pin
+`frappe-ui 1.0.0-rc.1`; whether a later release fixes any of them is unchecked.
+
+| Issue | Covers | Learner-facing here? |
+|---|---|---|
+| [frappe-ui#639](https://github.com/frappe/frappe-ui/issues/639) | Form controls: label/ID association, `aria-invalid` / error linkage, `Switch` semantics, required asterisk read aloud | Yes: assignment and quiz-adjacent forms, login-adjacent flows, profile |
+| [frappe-ui#640](https://github.com/frappe/frappe-ui/issues/640) | Dialog / Popover / Tooltip: focus trap and restore, `role="dialog"`, Escape, hoverable tooltips | Yes: any modal a learner opens (the lesson and quiz flows use dialogs) |
+| [frappe-ui#641](https://github.com/frappe/frappe-ui/issues/641) | Select / combobox / navigation patterns (4.1.2, 2.1.1) | Likely: course filters, search; not yet read |
+| [frappe-ui#642](https://github.com/frappe/frappe-ui/issues/642) | Toast / Alert / Progress: no live regions, no `progressbar` role | Yes: quiz and assignment feedback toasts, course progress bars |
+| [frappe-ui#643](https://github.com/frappe/frappe-ui/issues/643) | Global focus ring, contrast, icons | Yes, and overlaps the `color-contrast` "needs review" items above; not yet read |
+| [frappe-ui#1205](https://github.com/frappe/frappe-ui/issues/1205) | Dropdown switch items, ContextMenu keyboard, Password toggle is a `<span>`, Breadcrumbs "…" unnamed | Partly: Password (login/profile), Breadcrumbs (shown on every page we scanned) |
+| [frappe-ui#1036](https://github.com/frappe/frappe-ui/issues/1036) | Charts: confirm `role="img"` plots work in NVDA and JAWS | Statistics page only, not learner journey |
+
+These are reported by outsiders and not verified by us. The axe scan did not flag
+any of them, which is expected: they are keyboard, focus and announcement problems
+that axe cannot see. They are the main reason the manual NVDA / VoiceOver pass matters.
+No issue exists in `frappe/lms` for this (only #730, closed, from 2024).
+
+Because we only fix `lms` code, the frappe-ui items stay upstream. Where one blocks a
+learner step in the walkthrough, work around it in an LMS wrapper rather than patching
+frappe-ui.
+
 ## Not covered yet
 
 - Quiz result / review screen and a submitted assignment (the scan does not submit).
