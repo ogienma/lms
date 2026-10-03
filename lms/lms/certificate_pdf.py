@@ -20,7 +20,10 @@ from frappe.utils.print_format import validate_print_permission
 TAGGED_PDF_OPTIONS = {"generate-tagged-pdf": True}
 
 
-@frappe.whitelist(allow_guest=True)
+# The guest grant is the one the certificate links already had through
+# frappe.utils.print_format.download_pdf; validate_print_permission below is what gates it
+# (a published certificate is public, an unpublished one is not).
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @frappe.concurrent_limit()
 def download_certificate(name: str):
 	"""Same access as frappe.utils.print_format.download_pdf, which the certificate links used."""
