@@ -75,5 +75,7 @@ frappe-ui.
 ## Next
 
 1. Triage 6 and 7 by hand, then 2-4 and 1 into fix / won't-fix.
-2. Run the NVDA / VoiceOver pass against the same pages and record it next to this file.
+2. Run the NVDA / VoiceOver pass against the same pages: follow
+   [screen-reader-checklist.md](screen-reader-checklist.md) and record results in a copy of
+   [findings-template.md](findings-template.md) next to this file.
 3. Turn on `FAIL_ON_VIOLATIONS` in CI once the LMS-owned items are fixed.
