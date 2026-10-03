@@ -126,7 +126,7 @@ for (const p of PAGES) {
 }
 
 // The certificate itself is a PDF (www/certificate.py redirects to
-// download_pdf), which axe cannot read. A tagged PDF carries a structure tree
+// lms.lms.certificate_pdf), which axe cannot read. A tagged PDF carries a structure tree
 // and a document language; wkhtmltopdf output carries neither, so a screen
 // reader gets nothing to navigate. Recorded alongside the axe results.
 test("pdf: certificate tagging", async ({ browser }) => {
@@ -134,7 +134,7 @@ test("pdf: certificate tagging", async ({ browser }) => {
 	try {
 		await context.request.post("/api/method/login", { form: { usr: seed.user, pwd: seed.password } });
 		const res = await context.request.get(
-			`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${seed.certificate}&format=Certificate`
+			`/api/method/lms.lms.certificate_pdf.download_certificate?name=${seed.certificate}`
 		);
 		expect(res.ok()).toBeTruthy();
 		const raw = (await res.body()).toString("latin1");

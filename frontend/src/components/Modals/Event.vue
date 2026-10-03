@@ -380,9 +380,7 @@ watch(show, () => {
 
 const openCertificate = (certificate) => {
 	openExternal(
-		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
-			certificate.name
-		}&format=${encodeURIComponent(certificate.template)}`
+		`/api/method/lms.lms.certificate_pdf.download_certificate?name=${encodeURIComponent(certificate.name)}`
 	)
 }
 

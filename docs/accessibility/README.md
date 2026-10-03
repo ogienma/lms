@@ -24,14 +24,14 @@ Results land in this folder: `axe-summary.md`, `axe-results.json` (every node) a
 
 | # | Page | Rule | Impact | Whose code | Verdict |
 |---|---|---|---|---|---|
-| 1 | Certificate (PDF) | untagged PDF, no document language | blocker | LMS print format + wkhtmltopdf | Fix in LMS: needs a tagged-PDF route, or an accessible HTML certificate beside the PDF |
+| 1 | Certificate (PDF) | untagged PDF, no document language or title | blocker | LMS print format + wkhtmltopdf | **Fixed.** `lms.lms.certificate_pdf.download_certificate` renders with Chromium and tags the PDF; the print format now uses a real heading and paragraphs. Falls back to the old untagged PDF if Chromium fails |
 | 2 | Login | `image-alt` | critical | Frappe framework login template | LMS can override the template, or accept |
 | 3 | Login | `color-contrast` (labels, "Forgot password?") | serious | Frappe framework login template | Same as 2 |
-| 4 | Certificate print view | `color-contrast` ("Instructor" label, `color: gray`) | serious | LMS print format | Fix in LMS |
+| 4 | Certificate print view | `color-contrast` ("Instructor" label, `color: gray`) | serious | LMS print format | **Fixed** (`#595959`, 7:1) |
 | 5 | Course detail, lesson | `aria-allowed-attr`, `aria-prohibited-attr` | critical / serious | YouTube embed | Third party, not fixable here; consider a non-iframe fallback |
 | 6 | Course list, lesson, quiz, assignment, certificates | `color-contrast` flagged "needs review" (1-6 nodes each) | unknown | LMS / frappe-ui | Axe could not decide, usually text over images or gradients; check by hand |
 | 7 | Lesson, certificates | `aria-valid-attr-value` "needs review" | unknown | LMS / frappe-ui | Check by hand |
-| 8 | Certificate print view | `bypass` "needs review" | unknown | LMS print format | Trivial for a single-page print view |
+| 8 | Certificate print view | `bypass` "needs review" | unknown | LMS print format | Cleared by the new heading |
 
 Clean on the automated scan: course list, quiz start screen, quiz question view,
 assignment lesson, assignment submission.

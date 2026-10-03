@@ -261,9 +261,7 @@ const certificate = createResource({
 	},
 	onSuccess(data: { name: string; template: string }) {
 		openExternal(
-			`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
-				data.name
-			}&format=${encodeURIComponent(data.template)}`
+			`/api/method/lms.lms.certificate_pdf.download_certificate?name=${encodeURIComponent(data.name)}`
 		)
 	},
 }) as Resource<{ name: string; template: string } | null>
