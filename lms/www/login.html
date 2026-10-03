@@ -1,12 +1,18 @@
 {#
-	A copy of frappe/www/login.html with two accessibility changes (issue #35):
-	  1. the logo has alt text (the app name), where Frappe's has none;
-	  2. labels and the "Forgot password?" link use text-ink-gray-7 instead of
-	     text-ink-gray-5, which is under 4.5:1 on the card.
-	Nothing else differs. lms/www/login.py supplies Frappe's context unchanged.
-	lms/tests/test_login_template.py re-applies these two edits to Frappe's current
-	file and fails if the result is not this file, so a Frappe upgrade that touches
-	the login page shows up in CI instead of being silently ignored here.
+	A copy of frappe/www/login.html with one accessibility change (issue #35): the field
+	labels and the "Forgot password?" link use text-ink-gray-7 instead of text-ink-gray-5,
+	which is under 4.5:1 on the card. Nothing else differs.
+
+	The logo's alt text is no longer an edit here: Frappe added it itself (frappe/frappe
+	21a08ed42, "fix(a11y): name unlabelled controls and images in desk and website"). The
+	copy exists at all because the logo and labels sit in macros and one big block that a
+	child template cannot override.
+
+	lms/www/login.py supplies Frappe's context unchanged. lms/tests/test_login_template.py
+	re-applies the one edit to the installed Frappe's file and fails if the result is not
+	this file, so a Frappe upgrade that touches the login page shows up in CI instead of
+	being silently ignored here. When Frappe fixes the label contrast, delete this file,
+	login.py and that test.
 #}
 {% from "templates/includes/login/macros.html" import alert_banner %}
 {% extends "templates/web.html" %}
@@ -89,7 +95,7 @@
 
 {% macro logo_section(title=null, subtitle=null) %}
 <div class="page-card-head flex flex-col items-start gap-4 text-left">
-	<img class="app-logo" src="{{ logo }}" alt="{{ app_name }}">
+	<img class="app-logo" src="{{ logo }}" alt="{{ app_name | e }}">
 	<div class="page-card-head-text flex flex-col gap-1.5 w-full">
 		{% if title %}
 		<h4 class="text-3xl-bold text-ink-gray-9 w-full mt-0 mb-0">{{ _(title) }}</h4>

@@ -19,33 +19,33 @@ def _lms_template_body() -> str:
 	return re.sub(r"\A\{#.*?#\}\n", "", LMS_LOGIN.read_text(), count=1, flags=re.S)
 
 
-def _frappe_template_with_our_edits() -> str:
-	"""The two changes lms/www/login.html makes to Frappe's login page (issue #35)."""
-	source = FRAPPE_LOGIN.read_text()
-	source = source.replace("text-ink-gray-5", "text-ink-gray-7")
-	return source.replace(
-		'<img class="app-logo" src="{{ logo }}">',
-		'<img class="app-logo" src="{{ logo }}" alt="{{ app_name }}">',
-	)
+def _frappe_template_with_our_edit() -> str:
+	"""The one change lms/www/login.html makes to Frappe's login page (issue #35)."""
+	return FRAPPE_LOGIN.read_text().replace("text-ink-gray-5", "text-ink-gray-7")
 
 
 class TestLoginTemplate(IntegrationTestCase):
-	def test_the_copy_differs_from_frappes_login_only_by_our_two_edits(self):
+	def test_the_copy_differs_from_frappes_login_only_by_our_one_edit(self):
 		self.assertEqual(
 			_lms_template_body(),
-			_frappe_template_with_our_edits(),
-			"Frappe's www/login.html has changed. Re-apply the two accessibility edits "
-			"(logo alt, text-ink-gray-7) to lms/www/login.html on top of the new file, "
-			"and keep its header comment.",
+			_frappe_template_with_our_edit(),
+			"Frappe's www/login.html has changed. Re-apply the label-contrast edit "
+			"(text-ink-gray-5 -> text-ink-gray-7) to lms/www/login.html on top of the new "
+			"file, keep its header comment, and check whether Frappe has now fixed the "
+			"contrast itself, in which case delete the copy, login.py and this test.",
 		)
 
-	def test_both_edits_are_actually_present(self):
-		# The comparison above passes trivially if Frappe's markup stops matching the
-		# replace patterns (both sides would then be unedited). Guard that separately.
+	def test_the_edit_is_actually_present(self):
+		# The comparison above passes trivially if Frappe's markup stops matching the replace
+		# pattern (both sides would then be unedited). Guard that separately.
 		body = _lms_template_body()
-		self.assertIn('alt="{{ app_name }}"', body)
 		self.assertNotIn("text-ink-gray-5", body)
 		self.assertIn("text-ink-gray-7", body)
+
+	def test_the_logo_has_alt_text(self):
+		# Frappe supplies this itself now. An older Frappe without it would put the axe
+		# `image-alt` violation back, and this is where that shows.
+		self.assertRegex(_lms_template_body(), r'<img class="app-logo"[^>]* alt="')
 
 	def test_the_login_page_resolves_to_the_lms_copy(self):
 		page = TemplatePage("login", 200)

@@ -56,5 +56,7 @@ const certificates = createListResource({
 })
 
 const certificateUrl = (certificate) =>
-	`/api/method/lms.lms.certificate_pdf.download_certificate?name=${encodeURIComponent(certificate.name)}`
+	`/api/method/lms.lms.certificate_pdf.download_certificate?name=${encodeURIComponent(
+		certificate.name
+	)}`
 </script>

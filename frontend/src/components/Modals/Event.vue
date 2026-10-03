@@ -380,7 +380,9 @@ watch(show, () => {
 
 const openCertificate = (certificate) => {
 	openExternal(
-		`/api/method/lms.lms.certificate_pdf.download_certificate?name=${encodeURIComponent(certificate.name)}`
+		`/api/method/lms.lms.certificate_pdf.download_certificate?name=${encodeURIComponent(
+			certificate.name
+		)}`
 	)
 }
 

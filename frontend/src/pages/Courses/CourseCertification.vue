@@ -113,7 +113,9 @@ const openCertificate = () => {
 	const cert = certificate.value
 	if (!cert) return
 	openExternal(
-		`/api/method/lms.lms.certificate_pdf.download_certificate?name=${encodeURIComponent(cert.name)}`
+		`/api/method/lms.lms.certificate_pdf.download_certificate?name=${encodeURIComponent(
+			cert.name
+		)}`
 	)
 }
 

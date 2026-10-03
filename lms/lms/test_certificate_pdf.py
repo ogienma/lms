@@ -57,10 +57,22 @@ class TestCertificatePDF(BaseTestUtils):
 		self.assertIn("<head><title>Certificate of Completion", titled)
 
 	def test_a_failed_tagged_render_serves_the_untagged_pdf(self):
-		with patch.object(certificate_pdf, "_tagged_pdf", side_effect=RuntimeError("no chromium")):
+		# The untagged path is wkhtmltopdf, which is not installed everywhere (CI has Chromium
+		# and no wkhtmltopdf), so stand in for just that call and prove the fallback is taken.
+		real_get_print = frappe.get_print
+
+		def get_print(*args, **kwargs):
+			if kwargs.get("as_pdf"):
+				return b"%PDF-untagged-fallback"
+			return real_get_print(*args, **kwargs)
+
+		with (
+			patch.object(certificate_pdf, "_tagged_pdf", side_effect=RuntimeError("no chromium")),
+			patch.object(certificate_pdf.frappe, "get_print", side_effect=get_print),
+		):
 			pdf = certificate_pdf.render_certificate_pdf(self.certificate)
 
-		self.assertTrue(pdf.startswith(b"%PDF"))
+		self.assertEqual(pdf, b"%PDF-untagged-fallback")
 		self.assertTrue(
 			frappe.db.exists(
 				"Error Log", {"method": "Tagged certificate PDF failed; serving the untagged one"}
@@ -73,13 +85,16 @@ class TestCertificatePDF(BaseTestUtils):
 		unpublished = self._create_certificate(self.course.name, other.email)
 		frappe.db.set_value("LMS Certificate", unpublished.name, "published", 0)
 
+		# Rendering is covered above; this test is about who may download, so skip the renderer.
 		frappe.set_user(self.student.email)
-		certificate_pdf.download_certificate(self.certificate.name)
-		self.assertEqual(frappe.local.response.type, "pdf")
-		self.assertTrue(frappe.local.response.filecontent.startswith(b"%PDF"))
+		with patch.object(certificate_pdf, "render_certificate_pdf", return_value=b"%PDF-test") as render:
+			certificate_pdf.download_certificate(self.certificate.name)
+			self.assertEqual(frappe.local.response.type, "pdf")
+			self.assertEqual(frappe.local.response.filecontent, b"%PDF-test")
 
-		with self.assertRaises(frappe.PermissionError):
-			certificate_pdf.download_certificate(unpublished.name)
+			with self.assertRaises(frappe.PermissionError):
+				certificate_pdf.download_certificate(unpublished.name)
+			self.assertEqual(render.call_count, 1, "a refused certificate must not be rendered")
 
 
 def _structure_types(node, found=None):
