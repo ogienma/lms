@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-10-03T01:32:15.238Z",
+  "scannedAt": "2026-10-03T01:56:31.402Z",
   "tags": [
     "wcag2a",
     "wcag2aa",
@@ -11,48 +11,7 @@
     {
       "id": "login",
       "url": "/login",
-      "violations": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
-          "nodes": [
-            {
-              "target": [
-                "label[for=\"login_email\"]"
-              ],
-              "html": "<label class=\"text-base text-ink-gray-5 w-full mb-0\" for=\"login_email\">Email</label>"
-            },
-            {
-              "target": [
-                "label[for=\"login_password\"]"
-              ],
-              "html": "<label class=\"text-base text-ink-gray-5 w-full mb-0\" for=\"login_password\">Password</label>"
-            },
-            {
-              "target": [
-                "a[href$=\"#forgot\"]"
-              ],
-              "html": "<a href=\"#forgot\" class=\"text-base text-ink-gray-5\">Forgot password?</a>"
-            }
-          ]
-        },
-        {
-          "id": "image-alt",
-          "impact": "critical",
-          "help": "Images must have alternative text",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/image-alt?application=playwright",
-          "nodes": [
-            {
-              "target": [
-                ".for-login > .login-content.page-card.gap-5 > .page-card-head.text-left.gap-4 > img"
-              ],
-              "html": "<img class=\"app-logo\" src=\"/assets/frappe/images/frappe-framework-logo.svg\">"
-            }
-          ]
-        }
-      ],
+      "violations": [],
       "incomplete": []
     },
     {
@@ -122,7 +81,7 @@
           "nodes": [
             {
               "target": [
-                "#youtube-2627",
+                "#youtube-4036",
                 ".ytmVideoInfoVideoTitle"
               ],
               "html": "<a class=\"ytmVideoInfoVideoTitle\" aria-level=\"2\" href=\"https://www.youtube.com/watch?v=QhA4h6qD4wY\"><span class=\"ytAttributedStringHost ytmVideoInfoLink ytAttributedStringWhiteSpaceNoWrap\" style=\"\">Wh"
@@ -137,7 +96,7 @@
           "nodes": [
             {
               "target": [
-                "#youtube-2627",
+                "#youtube-4036",
                 "#movie_player"
               ],
               "html": "<div class=\"html5-video-player ytp-hide-controls ytp-exp-bottom-control-flexbox ytp-modern-caption ytp-livebadge-color unstarted-mode ytp-large-width-mode\" tabindex=\"\" id=\"movie_player\" data-version=\""

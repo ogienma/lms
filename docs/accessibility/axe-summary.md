@@ -4,7 +4,7 @@ Tags: wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa
 
 | Page | URL | Critical | Serious | Moderate | Minor | Needs review |
 |---|---|---|---|---|---|---|
-| login | /login | 1 | 1 | 0 | 0 | 0 |
+| login | /login | 0 | 0 | 0 | 0 | 0 |
 | course-list | /lms/courses | 0 | 0 | 0 | 0 | 1 |
 | course-detail | /lms/courses/a-guide-to-frappe-learning | 1 | 1 | 0 | 0 | 1 |
 | lesson | /lms/courses/a-guide-to-frappe-learning/learn/1-1 | 1 | 1 | 0 | 0 | 2 |

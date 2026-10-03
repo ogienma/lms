@@ -25,8 +25,8 @@ Results land in this folder: `axe-summary.md`, `axe-results.json` (every node) a
 | # | Page | Rule | Impact | Whose code | Verdict |
 |---|---|---|---|---|---|
 | 1 | Certificate (PDF) | untagged PDF, no document language or title | blocker | LMS print format + wkhtmltopdf | **Fixed.** `lms.lms.certificate_pdf.download_certificate` renders with Chromium and tags the PDF; the print format now uses a real heading and paragraphs. Falls back to the old untagged PDF if Chromium fails |
-| 2 | Login | `image-alt` | critical | Frappe framework login template | LMS can override the template, or accept |
-| 3 | Login | `color-contrast` (labels, "Forgot password?") | serious | Frappe framework login template | Same as 2 |
+| 2 | Login | `image-alt` | critical | Frappe framework login template | **Fixed** by `lms/www/login.html`: the logo's alt is the app name |
+| 3 | Login | `color-contrast` (labels, "Forgot password?") | serious | Frappe framework login template | **Fixed** (`text-ink-gray-7`, about 11.6:1 on white). `lms/www/login.html` is a copy of Frappe's with only these two edits; `lms/tests/test_login_template.py` fails if Frappe's file changes, so re-sync it on a Frappe upgrade |
 | 4 | Certificate print view | `color-contrast` ("Instructor" label, `color: gray`) | serious | LMS print format | **Fixed** (`#595959`, 7:1) |
 | 5 | Course detail, lesson | `aria-allowed-attr`, `aria-prohibited-attr` | critical / serious | YouTube embed | Third party, not fixable here; consider a non-iframe fallback |
 | 6 | Course list, lesson, quiz, assignment, certificates | `color-contrast` flagged "needs review" (1-6 nodes each) | unknown | LMS / frappe-ui | Axe could not decide, usually text over images or gradients; check by hand |
