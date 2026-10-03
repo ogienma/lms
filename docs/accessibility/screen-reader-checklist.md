@@ -201,21 +201,22 @@ NVDA, and Preview or Safari with VoiceOver. Adobe Reader with NVDA if you have i
       stop it (rename `chromium_path`), confirm the fallback still downloads, and note that
       it will fail these checks.
 
-## 4. Hand-review of axe "needs review" items
+## 4. Axe "needs review" items
 
-Axe could not decide these. They are mostly visual; a screen reader is not the tool. Use a
-contrast checker (the Colour Contrast Analyser app, or the browser devtools picker) on the
-nodes listed in `axe-results.json` under `incomplete`.
+Axe could not decide these. They were checked by script rather than by ear, so there is
+nothing to do here unless a page changes:
 
-| Page | Rule | Nodes | Check |
-|---|---|---|---|
-| Course list | `color-contrast` | 6 | Text over images or gradients: measure against the worst background pixel |
-| Course page | `color-contrast` | 1 | As above |
-| Lesson | `color-contrast`, `aria-valid-attr-value` | 3, 1 | Contrast; then inspect the attribute's referenced id exists in the DOM |
-| Quiz question | `color-contrast` | 1 | Contrast |
-| Assignment lesson | `color-contrast` | 2 | Contrast |
-| Certificates | `color-contrast`, `aria-valid-attr-value` | 2, 1 | As above |
+- **Contrast (15 nodes):** `node e2e/a11y/contrast_review.mjs` samples the real pixels behind
+  each node's text and computes the contrast against the worst one. All pass; the lowest is
+  5.5:1. `node e2e/a11y/contrast_review.mjs --control` first proves the measuring code fails
+  known-bad text, including on gradients, and passes known-good text. Re-run both after any
+  colour or layout change. Results: `contrast-review.json`.
+- **`aria-valid-attr-value` (2 nodes):** one false alarm (Plyr), one empty `aria-controls` on
+  a closed Reka UI popover trigger. See README findings 6 and 7.
 
+**Still by hand:** the video controls over a bright video frame. The script measures the
+unloaded player, which is black. Play a video with a bright frame, pause it, and check the
+time and button labels in the control bar against the 4.5:1 line with a contrast picker.
 Anything below 4.5:1 for body text (3:1 for large text and UI components) is a finding.
 
 ## 5. Beyond the happy path
