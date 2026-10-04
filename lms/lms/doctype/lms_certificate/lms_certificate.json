@@ -12,6 +12,7 @@
   "evaluator_name",
   "column_break_vwbn",
   "issue_date",
+  "ce_hours",
   "expiry_date",
   "template",
   "published",
@@ -118,12 +119,21 @@
    "fieldtype": "Data",
    "label": "Batch Title",
    "read_only": 1
+  },
+  {
+   "description": "Copied from the course on the day the certificate is issued. It does not change if the course changes later.",
+   "fieldname": "ce_hours",
+   "fieldtype": "Float",
+   "label": "CE hours",
+   "non_negative": 1,
+   "precision": "2",
+   "set_only_once": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-20 17:32:34.580862",
+ "modified": "2026-10-05 10:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Certificate",

@@ -14,6 +14,14 @@ class LMSCertificate(Document):
 	def validate(self):
 		self.validate_criteria()
 		self.validate_duplicate_certificate()
+		self.record_ce_hours()
+
+	def record_ce_hours(self):
+		"""Copy the course's CE hours onto the certificate the day it is issued, so changing the
+		course later cannot rewrite what an issued certificate says. A certificate issued before
+		this field existed has 0, which prints no CE hours. An explicit value is kept."""
+		if self.is_new() and not self.ce_hours and self.course:
+			self.ce_hours = frappe.db.get_value("LMS Course", self.course, "ce_hours") or 0
 
 	def autoname(self):
 		self.name = make_autoname("hash", self.doctype)

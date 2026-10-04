@@ -56,26 +56,35 @@ class TestCertificatePDF(BaseTestUtils):
 		# figure that carries its text alternative.
 		self.assertIn("Caladrius Therapy", _figure_alts(root["/StructTreeRoot"]))
 
-	def _certificate_html(self, ce_hours):
-		# Saved through the document, as the course editor does: the column stores 0, never NULL.
-		course = frappe.get_doc("LMS Course", self.course.name)
-		course.ce_hours = ce_hours
-		course.save()
+	def _certificate_html(self, ce_hours, certificate=None):
+		# The certificate prints the hours recorded on it, not the course's, so set them there.
+		name = (certificate or self.certificate).name
+		frappe.db.set_value("LMS Certificate", name, "ce_hours", ce_hours or 0)
 		return frappe.get_print(
 			"LMS Certificate",
-			self.certificate.name,
+			name,
 			self.certificate.template,
-			doc=self.certificate,
+			doc=frappe.get_doc("LMS Certificate", name),
 			as_pdf=False,
 			no_letterhead=1,
 		)
 
-	def test_ce_hours_appear_on_the_certificate_when_the_course_has_them(self):
+	def _set_course_ce_hours(self, value):
+		course = frappe.get_doc("LMS Course", self.course.name)
+		course.ce_hours = value
+		course.save()
+
+	def _issue_certificate_to_a_new_student(self, email):
+		student = self._create_user(email, "Second", "Learner", ["LMS Student"])
+		self._create_enrollment(student.email, self.course.name)
+		return self._create_certificate(self.course.name, student.email)
+
+	def test_ce_hours_appear_on_the_certificate_when_it_records_them(self):
 		html = self._certificate_html(6)
 		self.assertIn("CE hours", html)
 		self.assertRegex(html, r"<dd>\s*6\s*</dd>")
 
-	def test_a_course_without_ce_hours_prints_no_ce_hours(self):
+	def test_a_certificate_without_ce_hours_prints_no_ce_hours(self):
 		for value in (0, None):
 			with self.subTest(ce_hours=value):
 				html = self._certificate_html(value)
@@ -89,6 +98,54 @@ class TestCertificatePDF(BaseTestUtils):
 	def test_a_fractional_ce_hours_value_is_not_padded_with_zeros(self):
 		html = self._certificate_html(1.25)
 		self.assertRegex(html, r"<dd>\s*1\.25\s*</dd>")
+
+	def test_a_new_certificate_records_the_courses_ce_hours(self):
+		self._set_course_ce_hours(6)
+		certificate = self._issue_certificate_to_a_new_student("certpdf.second@example.com")
+		self.assertEqual(frappe.db.get_value("LMS Certificate", certificate.name, "ce_hours"), 6)
+
+	def test_changing_the_course_later_does_not_change_an_issued_certificate(self):
+		self._set_course_ce_hours(6)
+		certificate = self._issue_certificate_to_a_new_student("certpdf.second@example.com")
+
+		self._set_course_ce_hours(9)
+		self.assertEqual(frappe.db.get_value("LMS Certificate", certificate.name, "ce_hours"), 6)
+
+		# and what it prints is what was recorded, not the course's new value
+		html = frappe.get_print(
+			"LMS Certificate",
+			certificate.name,
+			certificate.template,
+			doc=frappe.get_doc("LMS Certificate", certificate.name),
+			as_pdf=False,
+			no_letterhead=1,
+		)
+		self.assertRegex(html, r"<dd>\s*6\s*</dd>")
+		self.assertNotRegex(html, r"<dd>\s*9\s*</dd>")
+
+	def test_a_certificate_for_a_course_without_ce_hours_records_none(self):
+		self.assertFalse(frappe.db.get_value("LMS Certificate", self.certificate.name, "ce_hours"))
+
+	def test_a_certificate_issued_before_the_field_existed_prints_no_ce_hours(self):
+		# It has 0 recorded, so even a course that now carries hours does not add them to it.
+		self._set_course_ce_hours(6)
+		frappe.db.set_value("LMS Certificate", self.certificate.name, "ce_hours", 0)
+		html = frappe.get_print(
+			"LMS Certificate",
+			self.certificate.name,
+			self.certificate.template,
+			doc=frappe.get_doc("LMS Certificate", self.certificate.name),
+			as_pdf=False,
+			no_letterhead=1,
+		)
+		self.assertNotIn("CE hour", html)
+
+	def test_the_recorded_hours_cannot_be_changed_once_set(self):
+		self._set_course_ce_hours(6)
+		certificate = self._issue_certificate_to_a_new_student("certpdf.second@example.com")
+		certificate.ce_hours = 7
+		with self.assertRaises(frappe.ValidationError):
+			certificate.save()
 
 	def test_ce_hours_cannot_be_negative(self):
 		course = frappe.get_doc("LMS Course", self.course.name)
