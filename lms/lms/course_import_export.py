@@ -559,6 +559,7 @@ def get_course_fields():
 		"currency",
 		"amount_usd",
 		"enable_certification",
+		"ce_hours",
 	]
 
 

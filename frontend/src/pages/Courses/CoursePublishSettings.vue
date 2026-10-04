@@ -140,6 +140,21 @@
 					</template>
 				</template>
 
+				<FormControl
+					v-if="doc?.enable_certification || doc?.paid_certificate"
+					v-model="doc.ce_hours"
+					type="number"
+					min="0"
+					step="0.25"
+					:label="__('CE hours')"
+					:description="
+						__(
+							'Optional. Printed on the certificate. Leave empty if this course carries no continuing education hours.'
+						)
+					"
+					variant="outline"
+					@input="markDirty()"
+				/>
 				<div
 					v-if="doc?.enable_certification || doc?.paid_certificate"
 					class="flex flex-wrap items-center gap-1 text-p-sm text-ink-gray-6"

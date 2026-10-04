@@ -46,6 +46,62 @@ class TestCertificatePDF(BaseTestUtils):
 		)
 		self.assertIn("/H1", _structure_types(root["/StructTreeRoot"]))
 
+		# One page, A4 landscape: Frappe's Chrome path injects a portrait @page size unless the
+		# print format gives exact page dimensions, and a portrait page clips the design.
+		self.assertEqual(len(reader.pages), 1)
+		box = reader.pages[0].mediabox
+		self.assertGreater(float(box.width), float(box.height))
+
+		# The logo is the only place the organisation's name appears, so it must be a tagged
+		# figure that carries its text alternative.
+		self.assertIn("Caladrius Therapy", _figure_alts(root["/StructTreeRoot"]))
+
+	def _certificate_html(self, ce_hours):
+		# Saved through the document, as the course editor does: the column stores 0, never NULL.
+		course = frappe.get_doc("LMS Course", self.course.name)
+		course.ce_hours = ce_hours
+		course.save()
+		return frappe.get_print(
+			"LMS Certificate",
+			self.certificate.name,
+			self.certificate.template,
+			doc=self.certificate,
+			as_pdf=False,
+			no_letterhead=1,
+		)
+
+	def test_ce_hours_appear_on_the_certificate_when_the_course_has_them(self):
+		html = self._certificate_html(6)
+		self.assertIn("CE hours", html)
+		self.assertRegex(html, r"<dd>\s*6\s*</dd>")
+
+	def test_a_course_without_ce_hours_prints_no_ce_hours(self):
+		for value in (0, None):
+			with self.subTest(ce_hours=value):
+				html = self._certificate_html(value)
+				self.assertNotIn("CE hour", html)
+
+	def test_one_ce_hour_is_singular(self):
+		html = self._certificate_html(1)
+		self.assertIn("CE hour<", html)
+		self.assertNotIn("CE hours", html)
+
+	def test_a_fractional_ce_hours_value_is_not_padded_with_zeros(self):
+		html = self._certificate_html(1.25)
+		self.assertRegex(html, r"<dd>\s*1\.25\s*</dd>")
+
+	def test_ce_hours_cannot_be_negative(self):
+		course = frappe.get_doc("LMS Course", self.course.name)
+		course.ce_hours = -2
+		with self.assertRaises(frappe.ValidationError):
+			course.save()
+
+	def test_ce_hours_is_optional(self):
+		course = frappe.get_doc("LMS Course", self.course.name)
+		course.ce_hours = None
+		course.save()
+		self.assertFalse(frappe.db.get_value("LMS Course", self.course.name, "ce_hours"))
+
 	def test_the_title_names_the_document_not_the_learner(self):
 		html = "<html><head><title>Cert Learner</title></head><body></body></html>"
 		titled = certificate_pdf._with_title(html, self.certificate)
@@ -95,6 +151,21 @@ class TestCertificatePDF(BaseTestUtils):
 			with self.assertRaises(frappe.PermissionError):
 				certificate_pdf.download_certificate(unpublished.name)
 			self.assertEqual(render.call_count, 1, "a refused certificate must not be rendered")
+
+
+def _figure_alts(node, found=None):
+	"""The /Alt text of every /Figure under a StructTreeRoot."""
+	found = set() if found is None else found
+	node = node.get_object()
+	if isinstance(node, list):
+		for child in node:
+			_figure_alts(child, found)
+	elif hasattr(node, "get"):
+		if node.get("/S") == "/Figure" and node.get("/Alt"):
+			found.add(str(node["/Alt"]))
+		if node.get("/K") is not None:
+			_figure_alts(node["/K"], found)
+	return found
 
 
 def _structure_types(node, found=None):
