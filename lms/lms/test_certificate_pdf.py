@@ -56,6 +56,8 @@ class TestCertificatePDF(BaseTestUtils):
 		# figure that carries its text alternative.
 		self.assertIn("Caladrius Therapy", _figure_alts(root["/StructTreeRoot"]))
 
+		self.assertIn("Jessie Ogienko", reader.pages[0].extract_text())
+
 	def _certificate_html(self, ce_hours, certificate=None):
 		# The certificate prints the hours recorded on it, not the course's, so set them there.
 		name = (certificate or self.certificate).name
@@ -98,6 +100,49 @@ class TestCertificatePDF(BaseTestUtils):
 	def test_a_fractional_ce_hours_value_is_not_padded_with_zeros(self):
 		html = self._certificate_html(1.25)
 		self.assertRegex(html, r"<dd>\s*1\.25\s*</dd>")
+
+	def _html(self):
+		return frappe.get_print(
+			"LMS Certificate",
+			self.certificate.name,
+			self.certificate.template,
+			doc=frappe.get_doc("LMS Certificate", self.certificate.name),
+			as_pdf=False,
+			no_letterhead=1,
+		)
+
+	def test_the_certificate_carries_the_ceo_signature_block(self):
+		html = self._html()
+		self.assertIn("Jessie Ogienko", html)
+		self.assertIn("Chief Executive Officer", html)
+		# The line is decoration; the name and title are the text a screen reader reads.
+		self.assertRegex(
+			html, r'class="certificate-signature-space certificate-signature-line"\s+aria-hidden="true"'
+		)
+
+	def test_a_single_instructor_is_labelled_instructor(self):
+		html = self._html()
+		self.assertRegex(html, r">\s*Instructor\s*<")
+		self.assertNotIn("Instructors", html)
+
+	def test_two_instructors_are_listed_and_labelled_instructors(self):
+		course = frappe.get_doc("LMS Course", self.course.name)
+		course.append("instructors", {"instructor": self.student.email})
+		course.save()
+		html = self._html()
+		self.assertRegex(html, r">\s*Instructors\s*<")
+		self.assertIn("Cert Learner", html)
+
+	def test_an_evaluated_certificate_names_the_evaluator_not_the_instructors(self):
+		frappe.db.set_value(
+			"LMS Certificate",
+			self.certificate.name,
+			{"evaluator": "evaluator@example.com", "evaluator_name": "Eve Evaluator"},
+		)
+		html = self._html()
+		self.assertIn("Eve Evaluator", html)
+		self.assertRegex(html, r">\s*Evaluated By\s*<")
+		self.assertNotRegex(html, r">\s*Instructors?\s*<")
 
 	def test_a_new_certificate_records_the_courses_ce_hours(self):
 		self._set_course_ce_hours(6)
