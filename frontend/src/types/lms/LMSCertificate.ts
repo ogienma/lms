@@ -11,6 +11,8 @@ export interface LMSCertificate {
 	idx?: number
 	/**	Issue Date : Date	*/
 	issue_date: string
+	/**	CE hours : Float	*/
+	ce_hours?: number
 	/**	Course : Link - LMS Course	*/
 	course?: string
 	/**	Expiry Date : Date	*/
