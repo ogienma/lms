@@ -12,8 +12,9 @@ is the safeguard. (Tracked in issues #37 and #34.)
 **The rule:** all lesson video is hosted on **YouTube, set to Unlisted**, and has
 **accurate captions**. Do not use the Upload block for video.
 
-- [ ] Every video in the course is on YouTube and set to **Unlisted**, and added to the
-      lesson as a YouTube/Video Hosting block. No video was uploaded through the Upload block.
+- [ ] Every video in the course is on YouTube and set to **Unlisted**, and was added to the
+      lesson by pasting its YouTube link (see "How to add a video" below). No video was
+      uploaded through the Upload block.
 - [ ] Every video has captions that Caladrius has **reviewed or uploaded**. YouTube's
       automatic captions are not enough on their own: they get names, clinical terms and
       accents wrong, so read them through, or upload a corrected caption file.
@@ -29,6 +30,36 @@ is the safeguard. (Tracked in issues #37 and #34.)
 - Nothing stops a video without captions from being published. This checklist is the only
   check.
 - Videos you upload directly cannot have captions at all. That is the reason for the rule.
+
+### How to add a video to a lesson
+
+**First, in YouTube** (the wording in YouTube may change; use its own help if a menu has moved):
+1. Upload the video to YouTube and set its visibility to **Unlisted**. Never leave it
+   Public.
+2. Make sure **embedding is allowed** for the video (the "Allow embedding" setting in the
+   video's details in YouTube Studio). If it is off, the video will not play in the lesson.
+3. Add and check the captions (see the checklist above).
+
+**Then, in the course:**
+1. Open the course, choose the **Course editor** tab, and pick the lesson in the chapter
+   list on the right. To make a new one, use **Add Lesson**.
+2. Click on an empty line in the lesson. To get one, click at the end of the existing
+   content and press **Enter**.
+3. **Paste the video's normal YouTube address** (the one from the browser's address bar,
+   for example `https://www.youtube.com/watch?v=...`). It turns into the video player on its
+   own.
+4. Press play on it inside the lesson and check that the captions show (checklist item
+   above).
+
+**Things that are easy to get wrong**
+- **There is no "video" button.** The "+" menu offers Text, Heading, List, Upload, Table,
+  Quiz, Assignment, Programming Exercise, Markdown and CodeBox. Pasting the link is the way
+  to add a video. **Do not use Upload for video.**
+- **Changes save automatically.** There is no Save step: what you paste is saved to the
+  lesson within seconds, so do not paste test links into a live course. Practise in a course
+  that is not published.
+- **Only YouTube has been tried.** The editor also recognises Vimeo, Cloudflare Stream and
+  Bunny Stream links, but those are not covered by this guide or the captions rule.
 
 ## 2. Images: a description for every image
 
@@ -72,6 +103,8 @@ Complete this on a copy or in the review ticket. Do not publish until every line
 
 ## What this does not cover yet
 
+- The "How to add a video" steps were checked on a test copy with one browser. They have not
+  been tried on a phone, in Safari, or with an unlisted video.
 - Learners using a screen reader have not been tested on the video player: this is part of
   the screen-reader testing still to be done (issue #35).
 - Audio lessons, quiz, assignment and PDF handout accessibility are not part of this
