@@ -54,7 +54,8 @@ class TestCertificatePDF(BaseTestUtils):
 
 		# The logo is the only place the organisation's name appears, so it must be a tagged
 		# figure that carries its text alternative.
-		self.assertIn("Caladrius Therapy", _figure_alts(root["/StructTreeRoot"]))
+		# the wordmark is the only figure: the bird in the seal is decoration, not tagged
+		self.assertEqual({"Caladrius Therapy"}, _figure_alts(root["/StructTreeRoot"]))
 
 		self.assertIn("Jessie Ogienko", reader.pages[0].extract_text())
 
