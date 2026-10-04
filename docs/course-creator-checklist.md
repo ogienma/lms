@@ -114,9 +114,12 @@ Leave it empty if the course carries no CE hours: the certificate then simply le
 out, and nothing else changes.
 
 **Limits you should know about**
-- **The certificate always shows the course's current CE hours.** If you change the number
-  later, certificates that were already issued show the new number when they are downloaded
-  again. There is no record of what the number was on the day a certificate was issued.
+- **Each certificate keeps the CE hours the course had on the day it was issued.** Changing
+  the course's CE hours later does not change certificates already issued, only the ones issued
+  from then on. Set the number *before* anyone completes the course.
+- **Certificates issued before this existed print no CE hours**, even if the course now has some.
+- **A recorded figure is locked.** If a certificate was issued with the wrong number, it cannot be
+  edited; it has to be corrected by a developer or the certificate reissued.
 - Only the number of hours is stored and printed. Nothing checks that it is correct or matches
   what EMDRIA approved for the course.
 - The certificate does not yet print an EMDRIA approved provider statement or number. That
