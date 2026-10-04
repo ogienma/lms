@@ -101,6 +101,27 @@ Complete this on a copy or in the review ticket. Do not publish until every line
 | Notes or fixes needed | |
 | Approved to publish | Yes / No |
 
+## Certificate: CE hours (optional)
+
+If a course carries continuing education (CE) hours, enter them so they print on the certificate.
+
+1. Open the course and go to the **Settings** tab, then **Pricing and certification**.
+2. Turn on **Completion certificate** (or **Paid certificate**). The **CE hours** box appears
+   under the switches.
+3. Type the number of hours, for example `6` or `1.5`. Changes save automatically.
+
+Leave it empty if the course carries no CE hours: the certificate then simply leaves that figure
+out, and nothing else changes.
+
+**Limits you should know about**
+- **The certificate always shows the course's current CE hours.** If you change the number
+  later, certificates that were already issued show the new number when they are downloaded
+  again. There is no record of what the number was on the day a certificate was issued.
+- Only the number of hours is stored and printed. Nothing checks that it is correct or matches
+  what EMDRIA approved for the course.
+- The certificate does not yet print an EMDRIA approved provider statement or number. That
+  needs the exact wording and number from you.
+
 ## What this does not cover yet
 
 - The "How to add a video" steps were checked on a test copy with one browser. They have not
