@@ -38,6 +38,7 @@
   "paid_certificate",
   "column_break_acoj",
   "enable_certification",
+  "ce_hours",
   "section_break_vqbh",
   "course_price",
   "currency",
@@ -304,6 +305,15 @@
    "fieldtype": "Check",
    "label": "Notification Sent",
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.enable_certification || doc.paid_certificate",
+   "description": "Optional. Continuing education hours, printed on the certificate. Leave empty if this course carries none.",
+   "fieldname": "ce_hours",
+   "fieldtype": "Float",
+   "label": "CE hours",
+   "non_negative": 1,
+   "precision": "2"
   }
  ],
  "is_published_field": "published",
@@ -322,7 +332,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2026-02-19 11:41:57.038869",
+ "modified": "2026-10-04 16:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Course",

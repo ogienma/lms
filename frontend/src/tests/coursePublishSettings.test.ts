@@ -19,7 +19,16 @@ vi.mock('@/stores/settings', () => ({
 
 vi.mock('frappe-ui', () => ({
 	Dialog: { template: '<div><slot /></div>' },
-	FormControl: { template: '<div />' },
+	// Renders an input so a test can find a field by its label and type into it.
+	FormControl: {
+		props: ['modelValue', 'label'],
+		emits: ['input', 'update:modelValue'],
+		template: `<input
+			:data-label="label"
+			:value="modelValue"
+			@input="$emit('input', $event)"
+		/>`,
+	},
 	createResource: () => ({ data: null, reload: vi.fn(), submit: vi.fn() }),
 }))
 
@@ -99,5 +108,49 @@ describe('CoursePublishSettings', () => {
 			.find('[data-label="Enforce Lesson Completion"]')
 			.trigger('click')
 		expect(markDirty).toHaveBeenCalled()
+	})
+
+	describe('CE hours', () => {
+		const mountWith = (docOverrides: Record<string, unknown>, markDirty = vi.fn()) =>
+			mount(CoursePublishSettings, {
+				global: {
+					mocks: { __: (s: string) => s },
+					provide: {
+						courseForm: {
+							resource: { doc: { ...doc, ...docOverrides } },
+							markDirty,
+						},
+						$dayjs: (v: unknown) => ({ format: () => String(v) }),
+					},
+					stubs: {
+						CollapsibleSection: { template: '<div><slot /></div>' },
+						Link: true,
+						NewMemberModal: true,
+						BooleanSwitch: true,
+					},
+				},
+			})
+
+		it('is hidden until a certificate is enabled', () => {
+			const wrapper = mountWith({ enable_certification: 0, paid_certificate: 0 })
+			expect(wrapper.find('[data-label="CE hours"]').exists()).toBe(false)
+		})
+
+		it('shows for a free completion certificate', () => {
+			const wrapper = mountWith({ enable_certification: 1 })
+			expect(wrapper.find('[data-label="CE hours"]').exists()).toBe(true)
+		})
+
+		it('shows for a paid certificate', () => {
+			const wrapper = mountWith({ paid_certificate: 1 })
+			expect(wrapper.find('[data-label="CE hours"]').exists()).toBe(true)
+		})
+
+		it('marks the form dirty when CE hours is typed', async () => {
+			const markDirty = vi.fn()
+			const wrapper = mountWith({ enable_certification: 1 }, markDirty)
+			await wrapper.find('[data-label="CE hours"]').trigger('input')
+			expect(markDirty).toHaveBeenCalled()
+		})
 	})
 })
