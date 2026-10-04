@@ -122,6 +122,10 @@ out, and nothing else changes.
   edited; it has to be corrected by a developer or the certificate reissued.
 - Only the number of hours is stored and printed. Nothing checks that it is correct or matches
   what EMDRIA approved for the course.
+- **The signature line is blank for now.** Each certificate carries a line for the company's
+  signature with Jessie Ogienko's name and title (Chief Executive Officer) beneath it, next to the
+  instructor's name. Her signature image has not been added yet, so until it is the line is
+  empty. Adding it is a small change a developer makes in the certificate template.
 - The certificate does not yet print an EMDRIA approved provider statement or number. That
   needs the exact wording and number from you.
 
