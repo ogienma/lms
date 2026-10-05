@@ -39,6 +39,8 @@ export interface LMSCourse {
 	instructors: CourseInstructor[]
 	/**	Completion Certificate : Check	*/
 	enable_certification?: 0 | 1
+	/**	CE hours : Float	*/
+	ce_hours?: number
 	/**	Related Courses : Table - Related Courses	*/
 	related_courses?: RelatedCourses[]
 	/**	Status : Select	*/

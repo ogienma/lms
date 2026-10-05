@@ -24,6 +24,9 @@ class TestImportExportContentGuards(unittest.TestCase):
 	def test_export_carries_the_lesson_locking_setting(self):
 		self.assertIn("enforce_lesson_completion", get_course_fields())
 
+	def test_export_carries_the_ce_hours(self):
+		self.assertIn("ce_hours", get_course_fields())
+
 	def test_get_assessments_from_lesson_non_json(self):
 		# Non-JSON content yields no assessments/questions/test_cases and never hits the DB.
 		self.assertEqual(get_assessments_from_lesson(frappe._dict(content=RAW_URL)), ([], [], []))

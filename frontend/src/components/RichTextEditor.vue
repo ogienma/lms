@@ -29,6 +29,7 @@
 					ariaInvalid === undefined ? undefined : String(ariaInvalid)
 				"
 			/>
+			<ImageAltField v-if="editable" :editor="editorRef?.editor" />
 		</template>
 	</Editor>
 </template>
@@ -36,6 +37,7 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useFileUpload } from 'frappe-ui'
+import ImageAltField from '@/components/ImageAltField.vue'
 import type { UploadOptions } from 'frappe-ui'
 import {
 	AlignCenter,

@@ -75,9 +75,9 @@ const downloadCertificate = () => {
 	const cert = certification.data?.certificate
 	if (!cert) return
 	openExternal(
-		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
+		`/api/method/lms.lms.certificate_pdf.download_certificate?name=${encodeURIComponent(
 			cert.name
-		}&format=${encodeURIComponent(cert.template)}`
+		)}`
 	)
 }
 </script>

@@ -1,0 +1,317 @@
+[
+  {
+    "page": "course-list",
+    "selector": "button[data-value=\"live\"] > .box-border.transition-\\[background-color\\,color\\,box-shadow\\][data-state=\"active\"] > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "Published",
+    "color": "color(srgb 0.0905095 0.0905347 0.090537)",
+    "rgba": [
+      23,
+      23,
+      23,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "255,255,255",
+    "bgLightest": "255,255,255",
+    "worstRatio": 17.93,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "course-list",
+    "selector": "button[data-value=\"upcoming\"] > .hover\\:text-ink-gray-8.box-border.transition-\\[background-color\\,color\\,box-shadow\\] > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "Upcoming",
+    "color": "color(srgb 0.384314 0.384314 0.384314)",
+    "rgba": [
+      98,
+      98,
+      98,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "243,243,243",
+    "bgLightest": "243,243,243",
+    "worstRatio": 5.5,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "course-list",
+    "selector": "button[data-value=\"enrolled\"] > .hover\\:text-ink-gray-8.box-border.transition-\\[background-color\\,color\\,box-shadow\\] > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "Enrolled",
+    "color": "color(srgb 0.384314 0.384314 0.384314)",
+    "rgba": [
+      98,
+      98,
+      98,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "243,243,243",
+    "bgLightest": "243,243,243",
+    "worstRatio": 5.5,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "course-list",
+    "selector": "button[data-value=\"24\"] > .box-border.transition-\\[background-color\\,color\\,box-shadow\\][data-state=\"active\"] > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "24",
+    "color": "color(srgb 0.0905095 0.0905347 0.090537)",
+    "rgba": [
+      23,
+      23,
+      23,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "255,255,255",
+    "bgLightest": "255,255,255",
+    "worstRatio": 17.93,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "course-list",
+    "selector": "button[data-value=\"60\"] > .hover\\:text-ink-gray-8.box-border.transition-\\[background-color\\,color\\,box-shadow\\] > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "60",
+    "color": "color(srgb 0.384314 0.384314 0.384314)",
+    "rgba": [
+      98,
+      98,
+      98,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "243,243,243",
+    "bgLightest": "243,243,243",
+    "worstRatio": 5.5,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "course-list",
+    "selector": "button[data-value=\"120\"] > .hover\\:text-ink-gray-8.box-border.transition-\\[background-color\\,color\\,box-shadow\\] > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "120",
+    "color": "color(srgb 0.384314 0.384314 0.384314)",
+    "rgba": [
+      98,
+      98,
+      98,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "243,243,243",
+    "bgLightest": "243,243,243",
+    "worstRatio": 5.5,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "course-detail",
+    "selector": ".ProseMirror",
+    "reason": "elmPartiallyObscuring",
+    "text": "This course will cover the fundamentals of Frappe Learning, ",
+    "color": "oklch(0.205 0 0)",
+    "rgba": [
+      23,
+      23,
+      23,
+      1
+    ],
+    "size": 14,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "255,255,255",
+    "bgLightest": "255,255,255",
+    "worstRatio": 17.93,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "lesson",
+    "selector": ".plyr__time--current",
+    "reason": "bgGradient",
+    "text": "02:23",
+    "color": "rgb(255, 255, 255)",
+    "rgba": [
+      255,
+      255,
+      255,
+      1
+    ],
+    "size": 13,
+    "weight": 400,
+    "opacity": 1,
+    "bgDarkest": "0,0,0",
+    "bgLightest": "0,0,0",
+    "worstRatio": 21,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "lesson",
+    "selector": "button[data-active=\"\"] > .box-border.select-none.outline-none > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "Notes",
+    "color": "color(srgb 0.0905095 0.0905347 0.090537)",
+    "rgba": [
+      23,
+      23,
+      23,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "255,255,255",
+    "bgLightest": "255,255,255",
+    "worstRatio": 17.93,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "lesson",
+    "selector": ".hover\\:text-ink-gray-8 > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "Community",
+    "color": "color(srgb 0.384314 0.384314 0.384314)",
+    "rgba": [
+      98,
+      98,
+      98,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "243,243,243",
+    "bgLightest": "243,243,243",
+    "worstRatio": 5.5,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "quiz-question",
+    "selector": ".text-sm.text-ink-gray-5.shrink-0:nth-child(1)",
+    "reason": "bgOverlap",
+    "text": "Question 1 of 8",
+    "color": "color(srgb 0.384314 0.384314 0.384314)",
+    "rgba": [
+      98,
+      98,
+      98,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "248,248,248",
+    "bgLightest": "248,248,248",
+    "worstRatio": 5.74,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "assignment-lesson",
+    "selector": "button[data-active=\"\"] > .box-border.select-none.outline-none > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "Notes",
+    "color": "color(srgb 0.0905095 0.0905347 0.090537)",
+    "rgba": [
+      23,
+      23,
+      23,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "255,255,255",
+    "bgLightest": "255,255,255",
+    "worstRatio": 17.93,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "assignment-lesson",
+    "selector": ".hover\\:text-ink-gray-8 > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "Community",
+    "color": "color(srgb 0.384314 0.384314 0.384314)",
+    "rgba": [
+      98,
+      98,
+      98,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "243,243,243",
+    "bgLightest": "243,243,243",
+    "worstRatio": 5.5,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "certificates",
+    "selector": ".hover\\:text-ink-gray-8 > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "About",
+    "color": "color(srgb 0.384314 0.384314 0.384314)",
+    "rgba": [
+      98,
+      98,
+      98,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "243,243,243",
+    "bgLightest": "243,243,243",
+    "worstRatio": 5.5,
+    "need": 4.5,
+    "verdict": "pass"
+  },
+  {
+    "page": "certificates",
+    "selector": "button[data-active=\"\"] > .box-border.select-none.outline-none > .truncate.min-w-0",
+    "reason": "bgOverlap",
+    "text": "Certificates",
+    "color": "color(srgb 0.0905095 0.0905347 0.090537)",
+    "rgba": [
+      23,
+      23,
+      23,
+      1
+    ],
+    "size": 13,
+    "weight": 420,
+    "opacity": 1,
+    "bgDarkest": "255,255,255",
+    "bgLightest": "255,255,255",
+    "worstRatio": 17.93,
+    "need": 4.5,
+    "verdict": "pass"
+  }
+]
