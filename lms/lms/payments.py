@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 
+from lms.lms.stripe_checkout import create_checkout_session, is_stripe_gateway
 from lms.lms.utils import (
 	complete_enrollment,
 	get_lms_route,
@@ -121,6 +122,16 @@ def get_payment_link(
 	# (one in paise without an `order_id`, one in rupees with it), which
 	# update_payment_record's "creation desc, limit 1" lookup can resolve to the
 	# wrong row.
+	if is_stripe_gateway(payment_gateway):
+		return create_checkout_session(
+			payment_gateway,
+			payment.name,
+			title=f"{title}",
+			description=payment_details["description"],
+			payer_email=frappe.session.user,
+			cancel_to=get_redirect_url(doctype, docname, payment_for_certificate),
+		)
+
 	return controller.get_payment_url(**payment_details)
 
 
