@@ -63,6 +63,7 @@
 		"payment_settings_tab",
 		"payment_section",
 		"payment_gateway",
+		"stripe_webhook_secret",
 		"default_currency",
 		"exception_country",
 		"column_break_cfcv",
@@ -561,13 +562,20 @@
 			"fieldname": "enforce_assignment_completion",
 			"fieldtype": "Check",
 			"label": "Enforce Assignment Completion"
+		},
+		{
+			"depends_on": "eval:(doc.payment_gateway || '').startsWith('Stripe')",
+			"description": "From the Stripe dashboard (Developers > Webhooks). Register the endpoint /api/method/lms.lms.stripe_checkout.stripe_webhook for the checkout.session.completed event.",
+			"fieldname": "stripe_webhook_secret",
+			"fieldtype": "Password",
+			"label": "Stripe Webhook Signing Secret"
 		}
 	],
 	"grid_page_length": 50,
 	"index_web_pages_for_search": 1,
 	"issingle": 1,
 	"links": [],
-	"modified": "2026-06-05 20:49:15.000000",
+	"modified": "2026-10-04 20:29:37.666521",
 	"modified_by": "Administrator",
 	"module": "LMS",
 	"name": "LMS Settings",
