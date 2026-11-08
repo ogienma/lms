@@ -2976,13 +2976,37 @@ def complete_enrollment(payment_name: str, doctype: str, docname: str):
 	if payment_doc.payment_for_certificate:
 		update_certificate_purchase(docname, payment_name)
 	elif doctype == "LMS Course":
-		enroll_in_course(docname, payment_name)
+		# A course that is not open for self-enrolment (self-learning disabled, or not
+		# published) still takes payment: the payment stands as a pre-registration and
+		# staff enrol the learner when the course starts. LMS Enrollment would refuse the
+		# learner here, which rolled the payment back after the money had been taken.
+		if is_open_for_self_enrollment(docname):
+			enroll_in_course(docname, payment_name)
 	else:
 		enroll_in_batch(docname, payment_name)
 
 	# Counted last: it locks the coupon row until the request commits, and
 	# enrolling is the slower half of this transaction.
 	update_coupon_redemption(payment_doc)
+
+
+def is_open_for_self_enrollment(course: str) -> bool:
+	"""Whether the current user can be enrolled in the course right now.
+
+	Mirrors what LMS Enrollment checks before it inserts one, so a payment can be
+	told apart from an enrolment that would be refused."""
+	# Imported here: lms_enrollment imports from this module.
+	from lms.lms.doctype.lms_enrollment.lms_enrollment import is_admin
+
+	details = frappe.db.get_value("LMS Course", course, ["published", "disable_self_learning"], as_dict=True)
+
+	if not details:
+		return False
+
+	if is_admin():
+		return True
+
+	return bool(details.published) and not details.disable_self_learning
 
 
 def get_integration_requests(doctype: str, docname: str):

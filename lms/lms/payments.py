@@ -1,11 +1,13 @@
 import frappe
 from frappe import _
 
+from lms.lms import payment_messages
 from lms.lms.stripe_checkout import create_checkout_session, is_stripe_gateway
 from lms.lms.utils import (
 	complete_enrollment,
 	get_lms_route,
 	get_order_summary,
+	is_open_for_self_enrollment,
 )
 
 GATEWAY_NOT_CONFIGURED_TITLE = "Payment Gateway Not Configured"
@@ -76,7 +78,7 @@ def get_payment_link(
 	# still worth keeping.
 	if already_has_access(doctype, docname, payment_for_certificate):
 		save_address(address)
-		return redirect_to
+		return get_already_paid_destination(doctype, docname, payment_for_certificate, redirect_to)
 
 	# Resolve the controller before writing anything: get_controller validates the
 	# gateway and fails with an actionable message, so a misconfigured gateway
@@ -146,9 +148,44 @@ def already_has_access(doctype: str, docname: str, payment_for_certificate: int)
 		)
 
 	if doctype == "LMS Course":
-		return bool(frappe.db.exists("LMS Enrollment", {"member": member, "course": docname}))
+		return bool(
+			frappe.db.exists("LMS Enrollment", {"member": member, "course": docname})
+			or has_paid_for_course(member, docname)
+		)
 
 	return bool(frappe.db.exists("LMS Batch Enrollment", {"member": member, "batch": docname}))
+
+
+def has_paid_for_course(member: str, course: str) -> bool:
+	"""A paid-for course the learner is not enrolled in is a pre-registration, and
+	paying again for it would charge them twice."""
+	return bool(
+		frappe.db.exists(
+			"LMS Payment",
+			{
+				"member": member,
+				"payment_for_document_type": "LMS Course",
+				"payment_for_document": course,
+				"payment_for_certificate": 0,
+				"payment_received": 1,
+			},
+		)
+	)
+
+
+def get_already_paid_destination(
+	doctype: str, docname: str, payment_for_certificate: int, redirect_to: str
+) -> str:
+	if doctype != "LMS Course" or int(payment_for_certificate):
+		return redirect_to
+
+	if frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": docname}):
+		return redirect_to
+
+	if is_open_for_self_enrollment(docname):
+		return payment_messages.payment_received_enrolment_pending(docname)
+
+	return payment_messages.preregistered(docname)
 
 
 def get_amount_with_gst(amount: float, gst_amount: float) -> float:
