@@ -10,7 +10,8 @@ from unittest.mock import MagicMock, patch
 
 import frappe
 
-from lms.lms import stripe_checkout
+from lms.lms import payment_messages, stripe_checkout
+from lms.lms.payments import already_has_access, get_already_paid_destination
 from lms.lms.stripe_checkout import (
 	checkout_return,
 	create_checkout_session,
@@ -19,6 +20,7 @@ from lms.lms.stripe_checkout import (
 	to_minor_units,
 )
 from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.utils import is_open_for_self_enrollment
 
 WEBHOOK_SECRET = "whsec_unit_test_secret"
 
@@ -318,3 +320,125 @@ class TestStripeCheckout(BaseTestUtils):
 			stripe_webhook()
 
 		self.assertEqual(frappe.local.response["http_status_code"], 503)
+
+	# Courses that are not open for self-enrolment take payment as a pre-registration
+
+	def _close_course(self, **fields):
+		self.course.db_set({"disable_self_learning": 1, **fields})
+
+	def _message(self, location):
+		self.assertIn("/message?id=", location)
+		cached = frappe.cache.get_value("message_id:" + location.split("id=")[1], expires=True)
+		return cached["context"]
+
+	def test_open_course_is_open_for_self_enrolment(self):
+		self.assertTrue(is_open_for_self_enrollment(self.course.name))
+
+	def test_self_learning_disabled_course_is_closed(self):
+		self._close_course()
+
+		self.assertFalse(is_open_for_self_enrollment(self.course.name))
+
+	def test_unpublished_course_is_closed(self):
+		self.course.db_set("published", 0)
+
+		self.assertFalse(is_open_for_self_enrollment(self.course.name))
+
+	def test_staff_are_always_let_in(self):
+		self._close_course()
+		frappe.set_user(self.instructor.email)
+
+		self.assertTrue(is_open_for_self_enrollment(self.course.name))
+
+	def test_paying_for_a_closed_course_records_the_payment_without_enrolling(self):
+		self._close_course()
+		payment = self._payment(order_id="cs_test_123")
+
+		finalize_checkout_session(self._session(payment))
+
+		self.assertTrue(frappe.db.get_value("LMS Payment", payment.name, "payment_received"))
+		self.assertEqual(frappe.db.get_value("LMS Payment", payment.name, "payment_id"), "pi_test_123")
+		self.assertFalse(self._is_enrolled())
+
+	def test_second_delivery_for_a_closed_course_changes_nothing(self):
+		self._close_course()
+		payment = self._payment(order_id="cs_test_123")
+
+		finalize_checkout_session(self._session(payment))
+		finalize_checkout_session(self._session(payment))
+
+		self.assertEqual(frappe.db.count("LMS Payment", {"payment_for_document": self.course.name}), 1)
+		self.assertFalse(self._is_enrolled())
+
+	def test_return_for_a_closed_course_says_the_learner_is_pre_registered(self):
+		self._close_course()
+		payment = self._payment(order_id="cs_test_123")
+		client = MagicMock()
+		client.checkout.sessions.retrieve.return_value = self._session(payment)
+
+		with patch.object(stripe_checkout, "get_stripe_client", return_value=client):
+			checkout_return("cs_test_123")
+
+		context = self._message(frappe.local.response["location"])
+		self.assertEqual(context["title"], "You are pre-registered")
+		self.assertIn("wait for it to start", context["message"])
+		self.assertIn(self.course.title, context["message"])
+		self.assertTrue(frappe.db.get_value("LMS Payment", payment.name, "payment_received"))
+		self.assertFalse(self._is_enrolled())
+
+	def test_a_pre_registered_learner_is_not_charged_again(self):
+		self._close_course()
+		payment = self._payment(order_id="cs_test_123")
+		finalize_checkout_session(self._session(payment))
+
+		self.assertTrue(already_has_access("LMS Course", self.course.name, 0))
+		location = get_already_paid_destination("LMS Course", self.course.name, 0, "/lms/courses/x")
+
+		self.assertEqual(self._message(location)["title"], "You are pre-registered")
+
+	def test_someone_who_paid_for_nothing_yet_is_not_treated_as_paid(self):
+		self._payment(order_id="cs_test_123")
+
+		self.assertFalse(already_has_access("LMS Course", self.course.name, 0))
+
+	def test_title_is_escaped_in_the_message(self):
+		self.course.db_set("title", "<img src=x onerror=alert(1)>")
+
+		context = self._message(payment_messages.preregistered(self.course.name))
+
+		self.assertNotIn("<img", context["message"])
+		self.assertIn("&lt;img", context["message"])
+
+	# An enrolment refused for any other reason must not undo a payment Stripe took
+
+	def test_refused_enrolment_keeps_the_payment_and_logs_it(self):
+		payment = self._payment(order_id="cs_test_123")
+
+		with (
+			patch("lms.lms.utils.enroll_in_course", side_effect=frappe.ValidationError("nope")),
+			patch.object(frappe, "log_error") as log_error,
+		):
+			result = finalize_checkout_session(self._session(payment))
+
+		self.assertEqual(result.name, payment.name)
+		self.assertTrue(frappe.db.get_value("LMS Payment", payment.name, "payment_received"))
+		self.assertEqual(frappe.db.get_value("LMS Payment", payment.name, "payment_id"), "pi_test_123")
+		self.assertFalse(self._is_enrolled())
+		self.assertEqual(log_error.call_args.kwargs["title"], "Stripe payment taken but enrolment refused")
+		self.assertIn(payment.name, log_error.call_args.kwargs["message"])
+
+	def test_return_after_a_refused_enrolment_reassures_the_learner(self):
+		payment = self._payment(order_id="cs_test_123")
+		client = MagicMock()
+		client.checkout.sessions.retrieve.return_value = self._session(payment)
+
+		with (
+			patch.object(stripe_checkout, "get_stripe_client", return_value=client),
+			patch("lms.lms.utils.enroll_in_course", side_effect=frappe.ValidationError("nope")),
+			patch.object(frappe, "log_error"),
+		):
+			checkout_return("cs_test_123")
+
+		context = self._message(frappe.local.response["location"])
+		self.assertEqual(context["title"], "We have received your payment")
+		self.assertIn("administrator will finish", context["message"])
