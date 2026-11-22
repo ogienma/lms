@@ -23,7 +23,15 @@ import frappe
 from frappe import _
 from frappe.utils import flt, get_url
 
-from lms.lms.utils import get_lms_route, update_payment_record
+from lms.lms import payment_messages
+from lms.lms.utils import (
+	get_lms_route,
+	get_payment_doc,
+	is_open_for_self_enrollment,
+	update_coupon_redemption,
+	update_payment_details,
+	update_payment_record,
+)
 
 # https://docs.stripe.com/currencies#zero-decimal
 ZERO_DECIMAL_CURRENCIES = {
@@ -50,6 +58,8 @@ PAID_EVENTS = ("checkout.session.completed", "checkout.session.async_payment_suc
 # Cards only for now. Anything else a Stripe account has switched on in the
 # dashboard (wallets, bank debits) would otherwise show up on the hosted page.
 PAYMENT_METHOD_TYPES = ["card"]
+
+ENROLMENT_SAVEPOINT = "lms_stripe_enrolment"
 
 
 def is_stripe_gateway(payment_gateway: str | None) -> bool:
@@ -185,7 +195,23 @@ def finalize_checkout_session(session) -> dict | None:
 		stripe_token_id=session.get("payment_intent") or session.get("id"),
 		order_id=session.get("id"),
 	)
-	update_payment_record(payment.payment_for_document_type, payment.payment_for_document)
+	frappe.db.savepoint(ENROLMENT_SAVEPOINT)
+	try:
+		update_payment_record(payment.payment_for_document_type, payment.payment_for_document)
+	except frappe.ValidationError:
+		# Stripe has the money, so an enrolment that is refused must not undo the record
+		# of the payment: keep the payment, and leave the refusal where an admin will see it.
+		frappe.db.rollback(save_point=ENROLMENT_SAVEPOINT)
+		frappe.log_error(
+			title="Stripe payment taken but enrolment refused",
+			message=f"LMS Payment {payment.name} ({payment.payment_for_document_type} "
+			f"{payment.payment_for_document}, member {payment.member}) was paid in Stripe session "
+			f"{session.get('id')}, but enrolling the member was refused. The payment has been "
+			f"recorded as received; enrol the member by hand.\n\n{frappe.get_traceback()}",
+		)
+		update_payment_details(frappe.flags.data)
+		update_coupon_redemption(get_payment_doc(payment.name))
+
 	return payment
 
 
@@ -197,6 +223,26 @@ def get_destination(payment: dict, paid: bool) -> str:
 	if paid:
 		return get_url(target)
 	return get_url(f"payment-failed?redirect_to={quote(target, safe='')}")
+
+
+def get_return_location(payment: dict) -> str:
+	"""Where the learner lands after paying: the course when they are enrolled,
+	otherwise a message that says what happened to their payment."""
+	if not payment.payment_received:
+		return get_destination(payment, paid=False)
+
+	course = payment.payment_for_document
+
+	if payment.payment_for_document_type != "LMS Course" or payment.payment_for_certificate:
+		return get_destination(payment, paid=True)
+
+	if frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": course}):
+		return get_destination(payment, paid=True)
+
+	if is_open_for_self_enrollment(course):
+		return payment_messages.payment_received_enrolment_pending(course)
+
+	return payment_messages.preregistered(course)
 
 
 @frappe.whitelist(methods=["GET"])
@@ -220,11 +266,17 @@ def checkout_return(session_id: str):
 	payment = frappe.db.get_value(
 		"LMS Payment",
 		payment_name,
-		["name", "payment_received", "payment_for_document_type", "payment_for_document"],
+		[
+			"name",
+			"payment_received",
+			"payment_for_document_type",
+			"payment_for_document",
+			"payment_for_certificate",
+		],
 		as_dict=True,
 	)
 	frappe.local.response["type"] = "redirect"
-	frappe.local.response["location"] = get_destination(payment, paid=bool(payment.payment_received))
+	frappe.local.response["location"] = get_return_location(payment)
 
 
 # nosemgrep: guest-whitelisted-method - Stripe's servers are not logged in; the request is authenticated by the HMAC signature of the raw body against the signing secret, and anything unsigned is rejected before any data is read. Registered in tests/guest_endpoints.txt.
