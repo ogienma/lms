@@ -65,4 +65,14 @@ def _with_title(html: str, doc) -> str:
 		title = f"{title} - {course}"
 	tag = f"<title>{escape(title)}</title>"
 	html, replaced = re.subn(r"<title>.*?</title>", lambda _match: tag, html, count=1, flags=re.S)
-	return html if replaced else html.replace("<head>", f"<head>{tag}", 1)
+	html = html if replaced else html.replace("<head>", f"<head>{tag}", 1)
+	return _without_print_filename(html)
+
+
+def _without_print_filename(html: str) -> str:
+	"""Newer Frappe puts the document's name in a <meta name="frappe-print-filename"> and its
+	print script sets document.title to it just before printing, so the browser offers a tidy
+	file name. Chromium writes document.title into the PDF as its title, which would replace
+	the one set above with the certificate's id. The script does nothing when the meta is
+	empty. Older Frappe has no such meta, and this leaves it alone."""
+	return re.sub(r'(<meta\s+name="frappe-print-filename"\s+content=")[^"]*(")', r"\g<1>\g<2>", html, count=1)
