@@ -132,6 +132,14 @@ jobs:
             exit 1
           fi
 
+          # Old LMS releases pin razorpay 1.4, which imports pkg_resources, and setuptools 82
+          # and later no longer ship it. The version-15 payments app pins setuptools
+          # 84.2.1 itself, so it has to be set after the apps are installed and not before:
+          # whichever installs last wins. pip's complaint that payments wants 84.2.1 is
+          # harmless, nothing imports that.
+          "$PY" -m pip install --quiet "setuptools<81"
+          "$PY" -c "import pkg_resources"
+
           bench set-config -g db_host 127.0.0.1
           bench new-site "$SITE" \
             --mariadb-root-password 123 \
@@ -183,6 +191,11 @@ jobs:
             bench -v setup env --python "$python_bin"
             bench pip install -e ./apps/payments
             bench pip install -e ./apps/lms
+
+            # See the first step: an older line's LMS needs pkg_resources, and its
+            # payments app pins a setuptools without it. Set it last.
+            "$PY" -m pip install --quiet "setuptools<81"
+            "$PY" -c "import pkg_resources"
 
             # erpnext's ladder gets a cold cache for free: it kills honcho between
             # hops, and the Procfile's redis goes down with it. These are service

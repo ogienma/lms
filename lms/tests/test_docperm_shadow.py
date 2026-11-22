@@ -72,6 +72,11 @@ class TestDocPermShadow(IntegrationTestCase):
 		self.added_custom_perms.append(perm.name)
 		self.touched_doctypes.add(doctype)
 
+	def error_log_count(self) -> int:
+		# frappe.get_all, not frappe.db.count: newer Frappe keeps Error Log in its own log
+		# store, which frappe.db (the main database) cannot see.
+		return len(frappe.get_all("Error Log", pluck="name"))
+
 	def get_alert(self) -> str:
 		log = frappe.get_all(
 			"Error Log",
@@ -168,11 +173,11 @@ class TestDocPermShadow(IntegrationTestCase):
 		self.assertIn("LMS Course", stdout.getvalue())
 
 	def test_the_alert_stays_quiet_when_nothing_is_shadowed(self):
-		errors_before = frappe.db.count("Error Log")
+		errors_before = self.error_log_count()
 
 		stdout = io.StringIO()
 		with redirect_stdout(stdout):
 			warn_about_shadowed_permlevels()
 
-		self.assertEqual(frappe.db.count("Error Log"), errors_before)
+		self.assertEqual(self.error_log_count(), errors_before)
 		self.assertEqual(stdout.getvalue(), "")

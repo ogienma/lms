@@ -215,6 +215,28 @@ class TestCertificatePDF(BaseTestUtils):
 		titled = certificate_pdf._with_title("<html><head></head></html>", self.certificate)
 		self.assertIn("<head><title>Certificate of Completion", titled)
 
+	def test_the_title_is_not_overwritten_by_frappes_print_filename(self):
+		html = (
+			"<html><head><title>CERT-0001</title>"
+			'<meta name="generator" content="frappe">'
+			'<meta name="frappe-print-filename" content="CERT-0001">'
+			"</head></html>"
+		)
+
+		titled = certificate_pdf._with_title(html, self.certificate)
+
+		self.assertIn('<meta name="frappe-print-filename" content="">', titled)
+		self.assertIn('<meta name="generator" content="frappe">', titled)
+		self.assertNotIn("CERT-0001", titled)
+
+	def test_a_frappe_without_the_print_filename_is_left_alone(self):
+		html = "<html><head><title>x</title></head></html>"
+
+		self.assertEqual(
+			certificate_pdf._without_print_filename(html),
+			html,
+		)
+
 	def test_a_failed_tagged_render_serves_the_untagged_pdf(self):
 		# The untagged path is wkhtmltopdf, which is not installed everywhere (CI has Chromium
 		# and no wkhtmltopdf), so stand in for just that call and prove the fallback is taken.
@@ -232,9 +254,13 @@ class TestCertificatePDF(BaseTestUtils):
 			pdf = certificate_pdf.render_certificate_pdf(self.certificate)
 
 		self.assertEqual(pdf, b"%PDF-untagged-fallback")
+		# frappe.get_all, not frappe.db: newer Frappe keeps Error Log in its own log store, which
+		# frappe.db (the main database) cannot see.
 		self.assertTrue(
-			frappe.db.exists(
-				"Error Log", {"method": "Tagged certificate PDF failed; serving the untagged one"}
+			frappe.get_all(
+				"Error Log",
+				filters={"method": "Tagged certificate PDF failed; serving the untagged one"},
+				limit=1,
 			)
 		)
 

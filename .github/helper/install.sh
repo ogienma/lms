@@ -20,6 +20,12 @@ mkdir ~/frappe-bench/sites/lms.test
 cp "${GITHUB_WORKSPACE}/.github/helper/site_config.json" ~/frappe-bench/sites/lms.test/site_config.json
 
 
+# The runner's mariadb client insists on TLS for TCP connections, and the MariaDB service in CI
+# has none ("TLS/SSL error: SSL is required, but the server does not support it"). A flag on
+# our own commands is not enough: `bench reinstall` runs mariadb-dump itself. Every MariaDB
+# client reads this file.
+printf '[client]\nskip-ssl\n' > ~/.my.cnf
+
 mariadb --host 127.0.0.1 --port 3306 -u root -p123 -e "SET GLOBAL character_set_server = 'utf8mb4'";
 mariadb --host 127.0.0.1 --port 3306 -u root -p123 -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'";
 
