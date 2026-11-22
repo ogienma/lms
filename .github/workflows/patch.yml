@@ -101,6 +101,10 @@ jobs:
             --skip-redis-config-generation
           cd ~/frappe-bench
 
+          # The version-15 payments pins an old razorpay that imports pkg_resources, which
+          # setuptools 81 and later no longer ship, and lms.lms.utils imports razorpay.
+          "$PY" -m pip install --quiet "setuptools<81"
+
           bench get-app --skip-assets --branch version-15 payments https://github.com/frappe/payments
 
           # A pull_request checkout is detached. Give its actual head an advertised
